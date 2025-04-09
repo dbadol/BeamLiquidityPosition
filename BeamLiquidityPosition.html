@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- WELCOME TO 'BEAM LIQUIDITY POSITION'!
+  - This app computes the current situation a given liquidity position in the Beam DEX.
+  - Current version of the file: v0.1
+
+  General rules for developement:
+  - Vanilla HTML/JS/CSS compatible with Chrome 83 (to allow using it as a Beam Wallet DApp).
+  - Graphics are embedded as SVG or are Unicode symbols.
+  - If we disable styling, the raw HTML/JS must be usable and values copy-pasted somewhere else.
+
+  Disclaimer:
+  - This is an experimental work-in-progress.
+  - It is provided AS-IS, with no warranties whatsoever.
+  -->
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#d0daff"> <!-- Is this useful?... -->
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#042548"> <!-- Is this useful?... -->
+  <!-- Simplified Beam logo SVG favicon is URL-encoded (i.e. mainly replacing < > # and spaces) -->
+  <!-- Remark: Such SVG favicon does not seem to be recognized by Safari -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox='112%2085%20320%20320'%20xmlns='http://www.w3.org/2000/svg'%3E%3Ctitle%3EBeam%20favicon%3C/title%3E%3Cpath%20d='m424%20371h-304l152-260zm-229-44%2078-135%2078%20135z'%20fill='%230b76ff'%20fill-rule='evenodd'/%3E%3Cpolygon%20points='225%20314%20272%20226%20320%20314'%20fill='%2339fff2'/%3E%3Cpolygon%20points='120%20192%20272%20278%20272%20287%20120%20246'%20fill='%2324c1ff'/%3E%3Cpolygon%20points='424%20167%20272%20278%20272%20287%20424%20274'%20fill='%23fd76fd'/%3E%3C/svg%3E%0A">
+  <title>Beam Liquidity Position</title>
+
+<!-- JAVASCRIPT code -->
+<script defer src="BeamLiquidityPosition.js"></script> <!-- with 'defer', 'onload' is not needed -->
+<!-- CSS styles -->
+<link rel="stylesheet" href="BeamLiquidityPosition.css">
+
+</head>
+<body>
+  <!-- SVG templates (= invisible 'symbols' that can be called elsewhere) -->
+  <!-- Remark: No fixed size or color defined here. They will adapt to the SVG calling them. -->
+  <!-- Remark: 'xmlns' is not needed in inline SVGs served as 'text/html'-->
+  <svg style='display:none'><symbol id='icon_info' fill='none' viewBox='0 0 24 24'><circle cx='12' cy='12' r='11' stroke-width='2'/><circle cx='12' cy='5.8' r='1.2' stroke-width='2.4'/><path d='M12 20V9.5' stroke-width='4'/></symbol></svg>
+  <svg style='display:none'><symbol id='icon_swap' viewBox='2 3 20 20'><path d='M4 9h13l-1.6 1.2a1 1 0 0 0-.2 1.4 1 1 0 0 0 .8.4 1 1 0 0 0 .6-.2l4-3a1 1 0 0 0 0-1.59l-3.86-3a1 1 0 0 0-1.23 1.58L17.08 7H4a1 1 0 0 0 0 2z'/><path d='M20 16H7l1.6-1.2a1 1 0 0 0-1.2-1.6l-4 3a1 1 0 0 0 0 1.59l3.86 3a1 1 0 0 0 .61.21 1 1 0 0 0 .79-.39 1 1 0 0 0-.17-1.4L6.92 18H20a1 1 0 0 0 0-2z'/></symbol></svg>
+  <svg style='display:none'><symbol id='icon_refresh' viewBox='0 10 120 105'><path d='M 91 42 A 36 36 0 1 0 87 84 L 101 98 A 56 56 0 1 1 108 32 Z'/><polygon points='120,25 120,69 76,50'/></symbol></svg>
+  <!-- <svg style='display:none'><symbol id='icon_back' viewBox='3 1 60 34'><path d='M3 18L19 2v10h42v12H19v10z'/></symbol></svg> -->
+
+  <!-- Wrappers (added just to keep footer at the bottom) -->
+  <div id="Page-container">
+    <div id="Content-wrap">
+
+      <!-- Fixed banner on all pages -->
+      <div id="Banner">
+        <span id="BeamLogo">
+          <!-- Clicking on the logo sends back to the main page -->
+          <a href='?' title='Reload'>
+            <!-- A simplified SVG version of the BEAM logo -->
+            <svg height='6em' width='6em' viewBox='42 42 460 460'><defs><linearGradient id='Gradient1' x1='-24.6' y1='683.51' x2='-23.57' y2='683.51' gradientTransform='matrix(98, 0, 0, -47, 2497.75, 32364.11)' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#fff' stop-opacity='0'/><stop offset='1' stop-color='#fff'/></linearGradient><linearGradient id='Gradient2' x1='-28.7' y1='703.17' x2='-27.72' y2='703.17' gradientTransform='matrix(-98, 0, 0, 26, -2353.25, -18019.72)' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#9d6eff' stop-opacity='0'/><stop offset='1' stop-color='#a18cff'/></linearGradient><linearGradient id='Gradient3' x1='-28.69' y1='682.8' x2='-27.57' y2='682.8' gradientTransform='translate(-2353.25 29603.78) rotate(180) scale(98 43)' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#ae60d6' stop-opacity='0'/><stop offset='1' stop-color='#ab38e6'/></linearGradient><linearGradient id='Gradient4' x1='-28.68' y1='685.09' x2='-27.47' y2='685.09' gradientTransform='translate(-2353.25 41328.94) rotate(180) scale(98 60)' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#fd76fd' stop-opacity='0'/><stop offset='1' stop-color='#ff51ff'/></linearGradient></defs><circle id='circle' fill='#0b1624' cx='272' cy='272' r='230'/><g id='logo'><path id='Triangle-left' fill='#24c1ff' d='M272.25,327.21H194.72l77.5-135V110.45L120.31,370.64H272.25Z'/><path id='Triangle-right' fill='#0b76ff' d='M272.25,327.21h77.53l-77.5-135V110.45L424.19,370.64H272.25Z'/><polygon id='Triangle-small-left' fill='#39fff2' points='272.25 226.3 272.25 313.57 224.77 313.67 272.25 226.3'/><polygon id='Triangle-small-right' fill='#00e2c2' points='272.25 226.3 272.25 313.57 319.73 313.67 272.25 226.3'/><polygon id='Ray1-left' fill='url(#Gradient1)' points='86.13 191.81 272.25 277.83 272.25 286.83 86.13 246.1 86.13 191.81'/><polygon id='Ray2-right-low' fill='url(#Gradient2)' points='458.75 274.33 272.25 286.83 272.25 283.83 458.75 238.5 458.75 274.33'/><polygon id='Ray3-right-mid' fill='url(#Gradient3)' points='458.75 202.67 272.25 280.83 272.25 283.83 458.75 238.5 458.75 202.67'/><polygon id='Ray4-right-top' fill='url(#Gradient4)' points='458.75 166.83 272.25 277.83 272.25 280.83 458.75 202.67 458.75 166.83'/></g></svg>
+          </a>
+        </span>
+        <div id="BannerCenter">
+          <h1 id="BeamTitle">Beam Liquidity Position <span id='Version'>v0.1</span></h1>
+        </div>
+        <!-- Banner symbols for navigation and special functions -->
+        <!--
+        <div id="Navigation">
+          <div class="navRow">
+            <a id="Back" href="javascript:history.back();" title="Back"><svg width='1.2em' height='1.2em'><use href='#icon_back'/></svg></a>
+            <a id="Reload" href="" title="Reload"><svg width='1.2em' height='1.2em'><use href='#icon_refresh'/></svg></a>
+          </div>
+        </div>
+        -->
+      </div>
+
+      <!-- Floating buttons to scroll up and down -->
+      <div><button onclick='topFunction();' id='TopButton' title='Top'>&#9650;</button></div>
+      <div><button onclick='bottomFunction();' id='BottomButton' title='Bottom'>&#9660;</button></div>
+
+      <!-- Main content area (will be completed through Javascript) -->
+      <div id="MainContent">
+
+        <div class="blockContainer">
+
+          <div class="blockUnit">
+            <h3 class="blockTitle">INITIAL DEPOSIT</h3>
+            <div class="searchArea">
+              <form id="SearchForm" name="SearchForm" action="javascript:submitKernelSearch();">
+                <input id="SearchField" type="text" required value="" size="20" pattern="[0-9a-fA-F]+" placeholder="Kernel Id of the initial deposit in the liquidity pool" title="Enter the Kernel ID of a call to the DEX smart contract with method 'Liquidity Add'." autofocus>
+                <button id="SearchButton" type="submit" title="Search kernel">&#x1F50E;&#xFE0E;</button>
+              </form>
+            </div>
+            <div class="listOfValues">
+              <table class="blockTable">
+                <tr>
+                  <td><span class="rowLabel">Block height</span></td>
+                  <td><span class="rowValue blockHeight" data-initialheight>-</span></td>
+                  <td><span class="rowUnit dateAndTime" data-initialdate></span></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">Asset A deposited</span></td>
+                  <td><span class="rowValue" data-initialaid1amount>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">Asset B deposited</span></td>
+                  <td><span class="rowValue" data-initialaid2amount>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">LP token received</span></td>
+                  <td><span class="rowValue" data-initialammlamount>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-ammlname>AMML</span> <span class="assetID">(id:<span data-amml>-</span>)</span></span></td>
+                </tr>
+                <tr class="separator">
+                  <td><span class="rowLabel">Initial price <span class="swapIcon"><a href="javascript:invertPrices();" title="Switch units"><svg width='1em' height='1em'><use href='#icon_swap'/></svg></a></span></span></td>
+                  <td colspan="2"><span class="rowValue price">1 <span class="assetName" data-pricename2>Asset-B</span> = <span data-initialprice>1</span> <span class="assetName" data-pricename1>Asset-A</span></span></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="blockUnit">
+            <h3 class="blockTitle">CURRENT POOL SITUATION <span class="refreshIcon"><a href="javascript:submitPoolQuery();" title="Refresh current position"><svg width='1em' height='1em'><use href='#icon_refresh'/></svg></a></span></h3>
+            <div class="ListOfValues">
+              <table class="blockTable">
+                <tr>
+                  <td><span class="rowLabel">Block height</span></td>
+                  <td><span class="rowValue blockHeight" data-currentheight>-</span></td>
+                  <td><span class="rowUnit dateAndTime" data-currentdate></span></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">Fee tier</span></td>
+                  <td><span class="rowValue feeTier"><span data-feetiername>Low / Medium / High</span> (<span data-feetiervalue>%</span>)</span></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">Total Asset A</span></td>
+                  <td><span class="rowValue" data-poolaid1amount>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">Total Asset B</span></td>
+                  <td><span class="rowValue" data-poolaid2amount>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">Total LP token</span></td>
+                  <td><span class="rowValue" data-poolammlamount>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-ammlname>AMML</span> <span class="assetID">(id:<span data-amml>-</span>)</span></span></td>
+                </tr>
+                <tr class="separator">
+                  <td><span class="rowLabel">Current price <span class="swapIcon"><a href="javascript:invertPrices();" title="Switch units"><svg width='1em' height='1em'><use href='#icon_swap'/></svg></a></span></span></td>
+                  <td colspan="2"><span class="rowValue price">1 <span class="assetName" data-pricename2>Asset-B</span> = <span data-poolprice>1</span> <span class="assetName" data-pricename1>Asset-A</span></span></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="blockUnit">
+            <h3 class="blockTitle">CURRENT POSITION</h3>
+            <div class="ListOfValues">
+              <table class="blockTable">
+                <tr>
+                  <td><span class="rowLabel">Share of the pool</span></td>
+                  <td><span class="rowValue" data-poolshare>-</span></td>
+                  <td></td>
+                </tr>
+                <tr class="separator">
+                  <td><span class="rowLabel">Principal A</span></td>
+                  <td><span class="rowValue" data-aid1principal>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">+ Fees earned A</span></td>
+                  <td><span class="rowValue" data-aid1fees>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">= Available Asset A</span></td>
+                  <td><span class="rowValue" data-aid1total>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span></td>
+                </tr>
+                <tr class="separator">
+                  <td><span class="rowLabel">Principal B</span></td>
+                  <td><span class="rowValue" data-aid2principal>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">+ Fees earned B</span></td>
+                  <td><span class="rowValue" data-aid2fees>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">= Available Asset B</span></td>
+                  <td><span class="rowValue" data-aid2total>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="blockUnit">
+            <h3 class="blockTitle">PROFIT & LOSS <span class="swapIcon"><a href="javascript:invertPnL();" title="Switch units"><svg width='1em' height='1em'><use href='#icon_swap'/></svg></a></span></h3>
+            <div class="ListOfValues">
+              <table class="blockTable">
+                <tr>
+                  <td><span class="rowLabel">Time in the pool</span></td>
+                  <td colspan="2"><span class="rowValue duration" data-durationinpool>-</span></td>
+                </tr>
+                <tr class="separator">
+                  <td><span class="rowLabel">Current worth</span></td>
+                  <td><span class="rowValue" data-totalcurrentvalue>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aidpnlname>Asset-A</span><span class="assetID"> (id:<span data-aidpnl>-</span>)</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">&minus; Initial worth</span></td>
+                  <td><span class="rowValue" data-totalinitialvalue>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aidpnlname>Asset-A</span><span class="assetID"> (id:<span data-aidpnl>-</span>)</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">= Profit <span class="infoIcon" title="Loss if negative. Profit if positive."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
+                  <td><span class="rowValue" data-totalprofit>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aidpnlname>Asset-A</span><span class="assetID"> (id:<span data-aidpnl>-</span>)</span></span></td>
+                </tr>
+                <tr class="separator">
+                  <td><span class="rowLabel">Current worth</span></td>
+                  <td><span class="rowValue" data-totalcurrentvalue>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aidpnlname>Asset-A</span><span class="assetID"> (id:<span data-aidpnl>-</span>)</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">&minus; Worth if hodl <span class="infoIcon" title="Hypothetical current worth if the coins had NOT been deposited in the Liquidity Pool"><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
+                  <td><span class="rowValue" data-totalhodlvalue>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aidpnlname>Asset-A</span><span class="assetID"> (id:<span data-aidpnl>-</span>)</span></span></td>
+                </tr>
+                <tr>
+                  <td><span class="rowLabel">= Impermanent Loss <span class="infoIcon" title="Impermanent loss if negative. Impermanent gain if positive."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
+                  <td><span class="rowValue" data-totalil>-</span></td>
+                  <td><span class="rowUnit"><span class="assetName" data-aidpnlname>Asset-A</span><span class="assetID"> (id:<span data-aidpnl>-</span>)</span></span></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <div id="AboutBlock">
+          <details class="collapsible">
+            <summary class="collapsible-label"><h3 class="aboutTitle">ABOUT</h3></summary>
+            <div class="collapsible-content">
+              <div class="aboutText">This app computes the hypothetical current situation (value, fees, etc.) of a given position in a Liquidity Pool of the <a href="https://dex.beam.mw" title="Open the web version of the Beam DEX" target="_blank">Beam DEX</a>.</div>
+              <div class="aboutText">It cannot know if the position has already been withdrawn (because the Beam blockchain is confidential!), so it assumes it is still currently in place.</div>
+              <div class="aboutText">The app computes the total fees received within the DEX, but it does not consider rewards possibly distributed elsewhere (by instance in the liquidity farming campaign of the BeamX DAO).</div>
+              <div class="aboutText">This HTML/JS/CSS code runs locally and only makes three queries to a Beam node explorer: one to get the initial position (based on the provided kernel id), one to get the asset names, and one to get the current situation of the pool. The rest are simple calculations done locally.</div>
+              <div class="aboutText">The node explorer currently queried is: <span class="explorerNodeURL">-</span></div>
+              <div class="aboutDisclaimer">Disclaimer: This app is experimental and provided AS-IS, with no warranties whatsoever.</div>
+            </div>
+          </details>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Fixed footer on all pages -->
+    <div id='Footer'><a href='https://www.beam.mw' target='_blank'>beam.mw</a></div>
+
+    <!-- No JavaScript warning -->
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+
+  </div>
+
+</body>
+</html>

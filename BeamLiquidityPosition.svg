@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="65.38 -290.49 792.03 791.61">
+  <defs>
+    <linearGradient id="gradient1" x1="50%" x2="50%" y1="0%" y2="100%">
+      <stop offset="0" stop-color="#A37DFF"/>
+      <stop offset="1" stop-color="#6B7FFF"/>
+    </linearGradient>
+    <radialGradient id="gradient2" cx="0" cy="0" r="1" gradientTransform="rotate(90 256.66 28.52) scale(285.18)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1624"/>
+      <stop offset="1" stop-color="#0B1624"/>
+    </radialGradient>
+    <radialGradient id="gradient3" cx="0" cy="0" r="1" gradientTransform="rotate(90 255.65 27.89) scale(232.41)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#24C1FF"/>
+      <stop offset="1" stop-color="#24C1FF" stop-opacity="0"/>
+    </radialGradient>
+    <style>
+      .cls-3{stroke:#000;stroke-miterlimit:10;stroke-width:27px}
+    </style>
+  </defs>
+  <g transform="matrix(1.37 0 0 1.37 69.42 419.26)">
+    <circle cx="285.51" cy="-228.59" r="285.18" fill="url(#gradient2)"/>
+    <circle cx="285.51" cy="-228.59" r="232.41" fill="url(#gradient3)" opacity=".6" style="mix-blend-mode:color-dodge"/>
+  </g>
+  <path d="M512.48 64.63h244c0 34.23-54.68 62.01-122 62.01-67.34 0-122-27.78-122-62Z" style="stroke:#00e2c2;fill:#00e2c2"/>
+  <path d="M635.62 105.29v62.21" class="cls-3" style="fill:#00e2c2;stroke:#00e2c2"/>
+  <path d="M158.18 204h244c0 34.23-54.67 62.02-122 62.02s-122-27.78-122-62.01Z" style="stroke:#00e2c2;fill:#00e2c2"/>
+  <path d="M280.24 249.31v62.21" class="cls-3" style="fill:#00e2c2;stroke:#00e2c2"/>
+  <path d="m461.4 195.5 79.57 172.08H381.82l79.57-172.08Z" style="fill:#00e2c2"/>
+  <path d="m225.38 334.07 463.89-181.1" style="stroke:#00e2c2;fill:#39fff2;stroke-miterlimit:10;stroke-width:30px;stroke-linecap:round"/>
+  <g fill="none" fill-rule="evenodd" transform="matrix(9.54 0 0 9.54 165.25 9.11)">
+    <circle cx="12" cy="12" r="13" fill="#1C435B" stroke="#25C1FF" stroke-width="2"/>
+    <g fill="#FFF">
+      <path d="M11.5 15.83h3.83L11.5 9.09V5L19 18h-7.5v-2.17zm0 0H7.67l3.83-6.74V5L4 18h7.5v-2.17z"/>
+      <path d="M11.5 10.76v4.28H9.13zm0 0v4.28h2.37z"/>
+      <path d="M12 12.48 4 9v4l8-.16zm0 0L20 9v4l-8-.16z"/>
+    </g>
+  </g>
+  <g fill="none" fill-rule="evenodd" transform="translate(496.4 -154.98) scale(10.66)">
+    <circle cx="13" cy="13" r="11.64" fill="#000A16" stroke="url(#gradient1)" stroke-width="2"/>
+    <path fill="#0B76FF" d="M12.97 6.1 19 16.45H6.95L12.97 6.1zm0 3.41-3.05 5.23h6.1l-3.05-5.23z"/>
+    <path fill="#00E3C2" d="m6.02 3.43 6.01 10.35H0L6.02 3.43zm0 3.42-3.05 5.23h6.1L6.01 6.85z" style="mix-blend-mode:lighten" transform="rotate(-180 9.5 11.66)"/>
+    <path fill="#25C0FF" d="m9.51 7.03 10.4 5.96-10.43 6.02.03-11.98zm1.71 2.96-.02 6.06L16.48 13l-5.26-3z"/>
+    <path fill="#FF51FF" d="m6.02 3.44 6.02 10.36H0L6.02 3.44zm0 3.42L2.97 12.1h6.1L6.02 6.86z" style="mix-blend-mode:lighten" transform="rotate(150 9.13 12.6)"/>
+  </g>
+</svg>

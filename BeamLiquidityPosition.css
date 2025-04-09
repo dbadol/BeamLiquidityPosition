@@ -1,0 +1,572 @@
+/* GENERAL ELEMENTS */
+@font-face {
+  font-family: 'ProximaNova';
+  src: url(ProximaNova-Regular.woff2);
+}
+* {
+  box-sizing: border-box; /* Width and height will always include padding and border */
+  outline: none; /* Copied from the DEX dApp */
+}
+html, body {
+  font-family: 'ProximaNova', Arial, Helvetica, sans-serif; /* Default fonts */
+  font-size: 62.5%; /* Since default browser font size is generally 16px, this sets an easy '1rem = 10px' */
+  line-height: 1; /* From a CSS reset template */
+  margin: 0; /* Copied from the DEX dApp */
+  padding: 0; /* Copied from the DEX dApp */
+  height: 100%; /* Copied from the DEX dApp */
+  scroll-behavior: smooth;
+}
+:root {
+  /* Color scheme for browser elements without explicit style */
+  color-scheme: dark;
+  /* Reference Beam colors */
+  --color-mauve: #9d6eff;
+  --color-violet: #ab37e6;
+  --color-pink: #fe52ff;
+  --color-green: #00e2c2;
+  --color-cyan: #39fff2;
+  --color-light-blue: #25c1ff;
+  --color-blue: #0b76ff;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  /* More reference colors */
+  --color-off-white: #dddddd;
+  --color-red: #f25f5b;
+  --color-red-expiring: #ff436a;
+  --color-yellow: #f4ce4a;
+  --color-dark-blue: #042548;
+  --color-darkest-blue: #032e49;
+  --color-gray: #8196a4;
+  --color-disabled: #8da1ad;
+  --color-wallet-background: #042548;
+  --color-wallet-background-gradient-top: #035b8f;
+  --color-wallet-background-gradient-main: #042548;
+  --color-opacity-05: rgba(255, 255, 255, 0.05);
+  --color-opacity-1: rgba(255, 255, 255, 0.1);
+  --color-opacity-2: rgba(255, 255, 255, 0.2);
+  --color-opacity-3: rgba(255, 255, 255, 0.3);
+  --color-opacity-4: rgba(255, 255, 255, 0.4);
+  --color-opacity-5: rgba(255, 255, 255, 0.5);
+  --color-opacity-6: rgba(255, 255, 255, 0.6);
+  --color-opacity-7: rgba(255, 255, 255, 0.7);
+  --color-opacity-8: rgba(255, 255, 255, 0.8);
+  --color-opacity-9: rgba(255, 255, 255, 0.9);
+  /* Color variables */
+  --color-text: var(--color-off-white);
+  --color-text-bright: var(--color-white);
+  --color-text-dim: var(--color-opacity-8);
+  --color-text-dimer: var(--color-opacity-5);
+  --color-title: var(--color-white);
+  --color-h1: var(--color-title);
+  --color-h2: var(--color-title);
+  --color-h3: var(--color-title);
+  --color-link: #0066cc;
+  --color-link-visited: #3e1a8b;
+  --color-amount: var(--color-text-bright);
+  --color-asset-name: var(--color-text);
+  --color-asset-id: var(--color-text-dimer);
+  --color-initial-amount: var(--color-violet);
+  --color-current-amount: var(--color-light-blue);
+  --color-blockUnit-background: var(--color-opacity-05);
+  --color-collapsible-background-close: transparent;
+  --color-collapsible-background-open: var(--color-blockUnit-background);
+  --color-collapsible-hover: var(--color-blockUnit-background);
+  --color-collapsible-content-background: var(--color-blockUnit-background);
+  --color-icon: var(--color-opacity-3);
+  --color-icon-hover: var(--color-green);
+  --color-icon-shadow: var(--color-opacity-5);
+  --color-positive: #00bb00;
+  --color-negative: #ff5a4a;
+  --color-search-background: var(--color-opacity-1);
+  --color-search-placeholder: #aaa;
+  --color-search-text: #eee;
+  --color-search-border-filled: var(--color-light-blue);
+  --color-search-background-filled: var(--color-opacity-1);
+  --color-search-text-invalid: #ff8686;
+  --color-search-button-border: #636785;
+  --color-search-button-background: var(--color-opacity-3);
+  --color-search-button-text: #ddd;
+  --color-search-button-background-hover: var(--color-opacity-4);
+  --color-search-button-text-hover: black;
+  --color-scroll-button: #2b618d;
+  --color-scroll-text: white;
+  --color-blockheight: var(--color-text-bright);
+  --color-date-and-time: var(--color-text-dimer);
+  --color-duration: var(--color-text-dimer);
+  --color-logo-shadow: var(--color-opacity-3);
+  --color-banner-background: var(--color-opacity-05);
+  --color-banner-title: var(--color-light-blue);
+  --color-banner-version: var(--color-green);
+  --color-footer-text: var(--color-light-blue);
+  --color-footer-link: var(--color-light-blue);
+  --color-about-title: var(--color-title);
+  --color-about-text: var(--color-text-dim);
+  --color-about-link: var(--color-text-dim);
+  --color-disclaimer: var(--color-text-dim);
+  --color-node-url: var(--color-green);
+}
+:root { /* Background compatible with Beam Wallet (copied from the dao-core-app) */
+  background: var(--color-wallet-background); /* Shouldn't be needed */
+  background-image: linear-gradient(to bottom, var(--color-wallet-background-gradient-top) -174px, var(--color-wallet-background-gradient-main) 116px, var(--color-wallet-background-gradient-main));
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+body {
+  display: block; /* Copied from the DEX dApp */
+  margin: 0; /* Copied from the dao-core-app */
+}
+:link { color: var(--color-link); } /* Default link colors */
+:visited { color: var(--color-link-visited); }
+:link:active, :visited:active { color: var(--color-link-visited); }
+
+/* TITLE BANNER AND FOOTER */
+#Page-container {
+  position: relative;
+  min-height: 96vh; /* Always use the whole screen space, so that the footer stays at the bottom */
+  width: 96vw;
+  padding: 8px;
+}
+#Content-wrap {
+  padding-bottom: 1.8rem; /* Leave some space for the footer */
+}
+#Banner {
+  display: table; /* Display as table to organize its content */
+  width: 100%;
+  max-width: 928px; /* Remove this for full width */
+  min-width: 460px; /* Remove this for full width */
+  margin: auto; /* Keep horizontally centered */
+  background-color: var(--color-banner-background);
+  border-radius: 10px; /* Slightly round corners */
+  padding: 8px 10px 7px 10px;
+  text-align: center;
+}
+#BeamLogo {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: left;
+}
+#BeamLogo:hover svg {
+  filter: saturate(1.5) drop-shadow(0 0 5px var(--color-logo-shadow));
+}
+#BannerCenter{
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+  width: 100%;
+  white-space: nowrap; /* Don't wrap text */
+  padding: 0 10px 0 10px;
+}
+#BeamTitle {
+  font-size: 2.4rem;
+  color: var(--color-banner-title);
+  margin: 0 0 5px 0;
+}
+#Version {
+  font-size: 1rem;
+  color: var(--color-banner-version);
+}
+#TopButton, #BottomButton {
+  position: fixed; /* Fixed position */
+  z-index: 99; /* Make sure it does not overlap */
+  cursor: pointer; /* Mouse pointer on hover */
+  border: none; /* Remove borders */
+  outline: none; /* Remove outline */
+  border-radius: 50%; /* Round button */
+  background-color: var(--color-scroll-button); /* Background color */
+  opacity: 0.2; /* Very transparent */
+  text-align: center;
+  font-size: 1.5rem;
+  color: var(--color-scroll-text); /* Text color */
+  padding: 10px; /* Some padding */
+}
+#TopButton {
+  display: none; /* Hidden by default */
+  bottom: 50px; /* Bottom of the page */
+  right: 10px; /* Right side of the page */
+}
+#BottomButton {
+  display: block; /* Shown by default */
+  bottom: 10px; /* Bottom of the page */
+  right: 10px; /* Right side of the page */
+}
+#TopButton:hover, #BottomButton:hover {
+  opacity: 0.4; /* Less transparent on hover */
+}
+#Footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  color: var(--color-footer-text);
+  font-weight: bold;
+  white-space: nowrap; /* Don't wrap text */
+  font-size: 1.2rem;
+  height: 1.8rem; /* Footer height */
+}
+#Footer a {
+  color: var(--color-footer-link);
+  text-decoration: none;
+}
+#Footer a:hover {
+  text-decoration: underline;
+}
+#Footer::before {
+  content: "\25b8 \00a0"; /* Nice useless decoration ;-) */
+}
+#Footer::after {
+  content: "\00a0 \25c2"; /* Nice useless decoration ;-) */
+}
+
+/* CONTAINERS */
+#MainContent { /* Copied from the DEX dApp */
+  padding: 20px 0 20px 0;
+}
+.blockContainer { /* Copied from the DEX dApp */
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: stretch;
+  align-content: flex-start;
+  max-width: 954px;
+  width: 100%;
+  margin: auto;
+}
+.blockUnit {
+  /* Copied from the DEX dApp */
+  padding: 20px;
+  margin: 10px;
+  text-align: left;
+  background-color: var(--color-blockUnit-background);
+  width: 100%;
+  max-width: 442px;
+  min-width: 400px;
+  border-radius: 10px;
+  /* Use flexbox to better control the vertical positionning of the tables inside these blocks */
+  display: flex;
+  flex-direction: column;
+}
+
+/* SEARCH FIELD */
+.searchArea {
+  display: block;
+  width: 100%;
+  padding: 0 0 8px 0;
+}
+#SearchForm {
+  /* Nothing special */
+}
+#SearchField {
+  display: inline-block;
+  border-radius: 5px; /* Slightly round corners */
+  border: none;
+  background-color: var(--color-search-background);
+  padding: 1.5ch 1ch 1.2ch 1ch; /* Internal padding */
+  font-family: "Lucida Console", ui-monospace, monospace; /* Switch to monospace font */
+  font-size: 1.2rem;
+  width: calc(100% - 3rem - 3px); /* Full width, minus the Search button */
+  color: var(--color-search-text);
+  height: 3rem;
+  text-decoration: none;
+  vertical-align: middle;
+}
+#SearchField:focus {
+  outline: none; /* Avoid the browser default focus outline */
+  border: 1px solid var(--color-search-border-filled);
+}
+#SearchField:not(:placeholder-shown) { /* Search field with content in it */
+  background-color: var(--color-search-background-filled);
+}
+#SearchField:invalid {
+  color: var(--color-search-text-invalid);
+  text-decoration: line-through; /* Strikethrough if incorrect format */
+}
+#SearchField:placeholder-shown { /* Needed in Chrome to remove the line-through */
+  text-decoration: none;
+  color: var(--color-search-text);
+}
+#SearchField::placeholder {
+  font-family: Arial, Helvetica, sans-serif; /* Font for the placeholder text */
+  font-size: 1.3rem;
+  font-style: italic;
+  color: var(--color-search-placeholder);
+  text-decoration: none;
+}
+#SearchButton {
+  display: inline-block;
+  border: none;
+  border: 1px solid var(--color-search-button-border);
+  border-radius: 5px; /* Slightly round corners */
+  background-color: var(--color-search-button-background);
+  color: var(--color-search-button-text);
+  height: 2.9rem;
+  width: 2.9rem;
+  font-size: 1.4rem;
+  text-align: center;
+  vertical-align: middle;
+  text-decoration: none;
+  padding: 0;
+}
+#SearchButton:hover {
+  background-color: var(--color-search-button-background-hover);
+  color: var(--color-search-button-text-hover);
+  cursor: pointer; /* Mouse pointer on hover */
+  filter: drop-shadow(0 0 1px var(--color-search-button-background-hover));
+}
+
+/* FORMAT TABLES */
+table, td, th {
+  color: var(--color-text); /* Default text color */
+  font-size: 1.4rem; /* Default text size */
+  border-collapse: collapse; /* Join table and cell borders as one single line */
+  border: none;
+  padding: 5px; /* Add a small padding */
+}
+.listOfValues {
+  margin-top: auto; /* Keep the tables at the bottom of their parent flexbox */
+}
+.blockTable {
+  width: 100%;
+  max-width: 412px; /* Same as blockUnit (minus padding) */
+  min-width: 360px; /* Same as blockUnit (minus padding) */
+}
+.blockTable tr td:nth-child(1) { /* Trick to make the first column fit its text width (because 'fit-content' does not seem to work...) */
+  width: 1%;
+  white-space: nowrap;
+}
+.blockTable tr td:nth-child(2) { /* Avoid the second column being too narrow when empty */
+  min-width: 30%;
+}
+tr.separator td > span { /* Add space above certain rows */
+  margin-top: 15px;
+}
+
+/* FORMAT TEXT */
+.blockTitle { /* Copied from the DEX dApp */
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: left;
+  letter-spacing: 3.11111px;
+  color: var(--color-title);
+  margin-bottom: 20px;
+  white-space: nowrap;
+}
+.rowLabel {
+  display: block;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 1.4rem;
+  line-height: 14px;
+  white-space: nowrap;
+  text-align: left;
+  color: var(--color-text-dim);
+  margin-right: 10px;
+}
+.rowValue {
+  /*font-family: ui-monospace, monospace; /* Switch to monospace font */
+  display: block;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 1.4rem;
+  line-height: 17px;
+  white-space: nowrap;
+  text-align: right;
+  color: var(--color-amount);
+}
+.rowUnit {
+  display: block;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 1.2rem;
+  line-height: 17px;
+  white-space: nowrap;
+  text-align: left;
+  color: var(--color-text);
+}
+.blockHeight {
+  font-family: "Courier New", ui-monospace, monospace;
+  font-weight: normal;
+  text-align: right;
+  font-size: 1.6rem;
+  letter-spacing: 2px;
+  color: var(--color-blockheight);
+}
+.dot { /* Slight highlight of the decimal dot */
+  font-size: 1.2em;
+  margin: 0 2px 0 2px;
+}
+.dateAndTime {
+  font-size: 1.25rem;
+  color: var(--color-date-and-time);
+  text-align: left;
+}
+.duration {
+  font-size: 1.35rem;
+  color: var(--color-duration);
+  text-align: right;
+}
+.feeTier {
+  text-align: right;
+}
+.price {
+  text-align: center;
+}
+[data-initialprice], [data-poolprice] {
+  padding: 0 5px 0 5px;
+}
+.assetName {
+  font-weight: 400;
+  font-size: 1.3rem;
+  line-height: 14px;
+  color: var(--color-asset-name);
+  letter-spacing: 1.5px;
+}
+.assetID {
+  font-weight: 400;
+  font-size: 1.2rem;
+  line-height: 14px;
+  margin-left: 4px;
+  color: var(--color-asset-id);
+}
+[data-initialaid1amount], [data-initialaid2amount] { /* Style for initial amounts */
+  color: var(--color-initial-amount);
+  font-weight: bold;
+}
+[data-aid2total], [data-aid1total] { /* Style for current amounts */
+  color: var(--color-current-amount);
+  font-weight: bold;
+}
+[data-totalprofit="true"], [data-totalil="true"] { /* Style for positive PnL values */
+  color: var(--color-positive);
+  font-weight: bold;
+}
+[data-totalprofit="false"], [data-totalil="false"] { /* Style for negative PnL values */
+  color: var(--color-negative);
+  font-weight: bold;
+}
+
+/* ICONS */
+.refreshIcon, .swapIcon {
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+  margin: 0 5px 0 5px;
+  cursor: pointer;
+}
+.refreshIcon *, .swapIcon * {
+  fill: var(--color-icon); /* Color all SVG elements */
+}
+.refreshIcon:hover *, .swapIcon:hover * {
+  fill: var(--color-icon-hover); /* Color all SVG elements */
+}
+.refreshIcon:hover svg, .swapIcon:hover svg {
+  filter: drop-shadow(0 0 2px var(--color-icon-shadow)); /* Add a shadow to SVG */
+}
+.infoIcon * {
+  stroke: var(--color-icon); /* Color all SVG elements */
+  cursor: help;
+}
+.infoIcon:hover * {
+  stroke: var(--color-icon-shadow); /* Color all SVG elements */
+}
+
+/* COLLAPSIBLES */
+.collapsible {
+  display: block;
+  width: 100%;
+}
+/* Collapsible header */
+.collapsible-label {
+  display: block; /* When display is not the default 'list-item', the default triangle disapears */
+  width: fit-content; /* Uses only its own needed width */
+  white-space: nowrap; /* Never wrap text */
+  background-color: var(--color-collapsible-background-close); /* Background when closed */
+  padding: 10px;
+  outline: none;
+  border: none;
+  border-radius: 10px; /* Slightly round corners */
+}
+.collapsible-label:hover {
+  background-color: var(--color-collapsible-hover);
+  cursor: pointer;
+}
+.collapsible[open] > .collapsible-label {
+  background-color: var(--color-collapsible-background-open); /* Background when open */
+  border-bottom-right-radius: 0; /* Remove bottom round corners when expanded... */
+  border-bottom-left-radius: 0; /* ...just because it's nice! :-) */
+}
+/* Collapsible symbols */
+.collapsible-label::-webkit-details-marker { /* On Chrome 83, this is needed to hide the default triangle */
+  display: none;
+}
+.collapsible-label > *:first-child::after { /* First element within the 'summary' tag */
+  content: '\00a0 \002b'; /* Add plus sign when collapsed */
+  font-weight: normal;
+}
+.collapsible[open] > .collapsible-label *:first-child::after { /* First element within the 'summary' tag */
+  content: '\00a0 \2212'; /* Add minus sign when expanded */
+}
+.collapsible-label:hover > *:first-child:after { /* First element within the 'summary' tag */
+  font-weight: bold;
+  color: var(--color-icon-hover); /* Change color */
+  filter: drop-shadow(0 0 2px var(--color-icon-shadow)); /* Add a shadow */
+}
+/* Collapsible content */
+.collapsible-content {
+  display: block;
+  width: 100%;
+  background-color: var(--color-collapsible-content-background);
+  border-radius: 10px; /* Slightly round corners */
+  padding: 20px;
+}
+.collapsible[open] > .collapsible-content {
+  border-top-left-radius: 0; /* Remove one round corner when expanded */
+}
+
+/* ABOUT AREA */
+#AboutBlock {
+  display: block;
+  width: 100%;
+  max-width: 948px;
+  min-width: 418px;
+  padding: 10px;
+  margin: auto;
+}
+.aboutTitle { /* Same visual as blockTitle */
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: left;
+  letter-spacing: 3.11111px;
+  color: var(--color-about-title);
+  white-space: nowrap;
+  padding: 0 10px 0 10px;
+}
+.aboutText {
+  font-weight: 400;
+  font-size: 1.4rem;
+  line-height: 14px;
+  color: var(--color-about-text);
+  line-height: 1.9rem;
+  padding-bottom: 10px;
+}
+.aboutText a {
+  color: var(--color-about-link);
+}
+.explorerNodeURL {
+  font-family: "Lucida Console", ui-monospace, monospace;
+  font-size: 1.2rem;
+  color: var(--color-node-url);
+  vertical-align: middle;
+  white-space: nowrap; /* Don't wrap text */
+  margin-left: 5px;
+}
+.aboutDisclaimer {
+  font-size: 1.2rem;
+  color: var(--color-disclaimer);
+  line-height: 1.9rem;
+  font-style: italic;
+}
