@@ -71,10 +71,14 @@ function formatDuration(ms) {
 
 // *** GLOBAL VARIABLES ***
 
-// Address of the remote explorer node
-//const urlPrefix = 'http://localhost:8888/';
-//const urlPrefix = 'https://explorer-api.beamprivacy.community/';
-const urlPrefix = 'http://BeamSmart.net:8000/';
+// List of remote explorer nodes
+const DEFAULT_NODES = [
+  'https://BeamSmart.net:8000/',
+  'https://explorer.0xmx.net/api/',
+  'https://explorer-api.beamprivacy.community/'
+];
+let currentNodeUrl = localStorage.getItem('beam_node_url') || DEFAULT_NODES[0];
+let customNodes = JSON.parse(localStorage.getItem('beam_custom_nodes') || '[]');
 
 // Request 'nice' formatting from the node
 const urlSuffix = '?exp_am=1';
@@ -200,6 +204,175 @@ function resetAll() {
   for (let i in g) { g[i] = undefined; }
 }
 
+// Manage Node Selector
+function initNodeSelector() {
+  const nodeSelector = document.getElementById('NodeSelector');
+  const nodeDropdown = document.getElementById('NodeDropdown');
+  
+  // Toggle dropdown on click
+  nodeSelector.onclick = (e) => {
+    e.stopPropagation();
+    const isVisible = nodeDropdown.style.display === 'flex';
+    nodeDropdown.style.display = isVisible ? 'none' : 'flex';
+  };
+
+  // Close dropdown when clicking outside
+  window.onclick = (e) => {
+    if (nodeDropdown.style.display === 'flex') {
+      if (!nodeDropdown.contains(e.target) && !nodeSelector.contains(e.target)) {
+        nodeDropdown.style.display = 'none';
+      }
+    }
+  };
+
+  renderNodeDropdown();
+  updateNodeDisplay();
+  checkNodeStatus();
+}
+
+function renderNodeDropdown() {
+  const nodeDropdown = document.getElementById('NodeDropdown');
+  nodeDropdown.innerHTML = '';
+
+  // Default nodes
+  DEFAULT_NODES.forEach(url => {
+    const option = document.createElement('div');
+    option.className = `node-option ${url === currentNodeUrl ? 'active' : ''}`;
+    option.innerHTML = `<span>${url}</span>`;
+    option.onclick = (e) => {
+      e.stopPropagation();
+      selectNode(url);
+      nodeDropdown.style.display = 'none';
+    };
+    nodeDropdown.appendChild(option);
+  });
+
+  // Custom nodes from localStorage
+  customNodes.forEach((url, index) => {
+    const option = document.createElement('div');
+    option.className = `node-option custom ${url === currentNodeUrl ? 'active' : ''}`;
+    option.innerHTML = `
+      <span>${url}</span>
+      <button class='delete-node' title='Remove custom node' onclick='deleteCustomNode(${index}, event)'>&times;</button>
+    `;
+    option.onclick = (e) => {
+      e.stopPropagation();
+      if (e.target.tagName !== 'BUTTON') {
+        selectNode(url);
+        nodeDropdown.style.display = 'none';
+      }
+    };
+    nodeDropdown.appendChild(option);
+  });
+
+  // Add custom node input area
+  const addArea = document.createElement('div');
+  addArea.className = 'node-option add-custom-area';
+  // Stop propagation on the whole area to prevent closing when clicking whitespace
+  addArea.onclick = (e) => e.stopPropagation();
+  addArea.innerHTML = `
+    <input type='text' id='CustomNodeInput' placeholder='https://...' onclick='event.stopPropagation()'>
+    <button id='AddNodeBtn' onclick='handleAddCustomNode(event)'>Add</button>
+  `;
+  nodeDropdown.appendChild(addArea);
+}
+
+function handleAddCustomNode(event) {
+  event.stopPropagation();
+  const input = document.getElementById('CustomNodeInput');
+  const customUrl = input.value.trim();
+  
+  if (customUrl && (customUrl.toLowerCase().startsWith('http://') || customUrl.toLowerCase().startsWith('https://'))) {
+    const lowerUrl = customUrl.toLowerCase();
+    
+    // Check if it already exists in defaults or custom (case-insensitive)
+    const existingDefault = DEFAULT_NODES.find(node => node.toLowerCase() === lowerUrl);
+    const existingCustom = customNodes.find(node => node.toLowerCase() === lowerUrl);
+
+    if (!existingDefault && !existingCustom) {
+      customNodes.push(customUrl);
+      localStorage.setItem('beam_custom_nodes', JSON.stringify(customNodes));
+      selectNode(customUrl);
+      renderNodeDropdown();
+    } else {
+      // If it already exists, select the existing one (to keep its original casing)
+      selectNode(existingDefault || existingCustom);
+    }
+    input.value = '';
+    // Close dropdown after adding
+    document.getElementById('NodeDropdown').style.display = 'none';
+  } else if (customUrl) {
+    alert('Please enter a valid URL starting with http:// or https://');
+  }
+}
+
+function deleteCustomNode(index, event) {
+  event.stopPropagation();
+  const deletedUrl = customNodes[index];
+  customNodes.splice(index, 1);
+  localStorage.setItem('beam_custom_nodes', JSON.stringify(customNodes));
+  
+  if (currentNodeUrl === deletedUrl) {
+    selectNode(DEFAULT_NODES[0]);
+  }
+  renderNodeDropdown();
+}
+
+function updateNodeDisplay() {
+  const nodeCurrentName = document.getElementById('NodeCurrentName');
+  const url = new URL(currentNodeUrl);
+  nodeCurrentName.textContent = url.hostname;
+  
+  // Update active class in dropdown
+  const options = document.querySelectorAll('.node-option');
+  options.forEach(opt => {
+    const span = opt.querySelector('span');
+    if (span && span.textContent === currentNodeUrl) {
+      opt.classList.add('active');
+    } else {
+      opt.classList.remove('active');
+    }
+  });
+
+  // Update 'About' section
+  const explorerNodeURL = document.querySelector('.explorerNodeURL');
+  if (explorerNodeURL) explorerNodeURL.textContent = currentNodeUrl;
+}
+
+function selectNode(url) {
+  currentNodeUrl = url;
+  localStorage.setItem('beam_node_url', url);
+  updateNodeDisplay();
+  checkNodeStatus();
+  // Optionally trigger a refresh of data if a search was already performed
+  if (document.getElementById('SearchField').value) {
+    submitKernelSearch();
+  }
+}
+
+async function checkNodeStatus() {
+  const nodeStatusIcon = document.getElementById('NodeStatusIcon');
+  nodeStatusIcon.className = ''; // Reset
+  
+  try {
+    // For simplicity, we'll try to fetch the base URL with a short timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    const response = await fetch(currentNodeUrl, { 
+      method: 'GET', 
+      mode: 'no-cors', // Many nodes won't have CORS enabled for simple GET
+      signal: controller.signal 
+    });
+    
+    clearTimeout(timeoutId);
+    nodeStatusIcon.classList.add('online');
+  } catch (error) {
+    console.error('Node status check failed:', error);
+    nodeStatusIcon.classList.add('offline');
+  }
+}
+
 // Update HTML with the values of the global variables
 function updateDisplay() {
   // Loop on all global variables
@@ -229,7 +402,7 @@ function submitKernelSearch() {
     const xmlhttp = new XMLHttpRequest();
     xmlhttp.onload = parseKernelSearch;
     // Submit request to explorer node
-    xmlhttp.open('GET', urlPrefix + 'block' + urlSuffix + '&kernel=' + g.kernel);
+    xmlhttp.open('GET', currentNodeUrl + 'block' + urlSuffix + '&kernel=' + g.kernel);
     xmlhttp.send();
   }
 }
@@ -365,7 +538,7 @@ function submitAssetsQuery() {
   const xmlhttp = new XMLHttpRequest();
   xmlhttp.onload = parseAssetsQuery;
   // Submit request to explorer node
-  xmlhttp.open('GET', urlPrefix + 'assets' + urlSuffix);
+  xmlhttp.open('GET', currentNodeUrl + 'assets' + urlSuffix);
   xmlhttp.send();
 }
 
@@ -414,7 +587,7 @@ function submitPoolQuery() {
   const xmlhttp = new XMLHttpRequest();
   xmlhttp.onload = parsePoolQuery;
   // Submit request to explorer node
-  xmlhttp.open('GET', urlPrefix + 'contract' + urlSuffix + '&id=' + contractID + '&nMaxTxs=1');
+  xmlhttp.open('GET', currentNodeUrl + 'contract' + urlSuffix + '&id=' + contractID + '&nMaxTxs=1');
   xmlhttp.send();
 }
 
@@ -526,7 +699,9 @@ function scrollFunction() {
   } else {
     myTopButton.style.display = 'none';
   }
+  
   const myBottomButton = document.getElementById('BottomButton');
+  //  if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 40) {
   if (Math.abs(document.body.scrollHeight - document.body.scrollTop - document.body.clientHeight) < 40 || Math.abs(document.documentElement.scrollHeight - document.documentElement.scrollTop - document.documentElement.clientHeight) < 40) {
     myBottomButton.style.display = 'none';
   } else {
@@ -540,6 +715,7 @@ function topFunction() {
 }
 // Scroll to the bottom of the document
 function bottomFunction() {
+  //window.scrollTo(0, document.body.scrollHeight);
   document.body.scrollTop = Math.abs(document.body.scrollHeight - document.body.clientHeight); // For Safari
   document.documentElement.scrollTop = Math.abs(document.documentElement.scrollHeight - document.documentElement.clientHeight); // For Chrome, Firefox, IE and Opera
 }
@@ -550,5 +726,11 @@ function bottomFunction() {
 window.onscroll = function() { scrollFunction() };
 
 // Display default values in the newly loaded page
-document.querySelector('.explorerNodeURL').textContent = urlPrefix;
+document.querySelector('.explorerNodeURL').textContent = currentNodeUrl;
 updateDisplay();
+
+// Check regularly the node status
+document.addEventListener("DOMContentLoaded", () => {
+  initNodeSelector();
+  setInterval(checkNodeStatus, 30000); // Periodic check every 30 seconds
+});
