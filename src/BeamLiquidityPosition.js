@@ -398,11 +398,14 @@ function submitKernelSearch() {
   // Get search string
   g.kernel = document.getElementById('SearchField').value;
   if (g.kernel) {
+    // Determine if it's a blockheight (1-9 digits) or a kernel ID
+    let isHeight = /^\d{1,9}$/.test(g.kernel);
+    let queryParam = isHeight ? '&height=' : '&kernel=';
     // Build request to explorer node
     const xmlhttp = new XMLHttpRequest();
     xmlhttp.onload = parseKernelSearch;
     // Submit request to explorer node
-    xmlhttp.open('GET', currentNodeUrl + 'block' + urlSuffix + '&kernel=' + g.kernel);
+    xmlhttp.open('GET', currentNodeUrl + 'block' + urlSuffix + queryParam + g.kernel);
     xmlhttp.send();
   }
 }
@@ -415,69 +418,78 @@ function parseKernelSearch() {
   // Display error message if no block was found
   // Remark: The explorer node often returns the treasury when no block is found (and only the Treasury lacks the 'info' field)
   if (jData['found'] === false || jData['info'] === undefined) {
-    alert('Block not found. Please use the Beam Explorer to verify the Kernel ID.');
+    alert('Block not found. Please use the Beam Explorer to check the Kernel ID or Block height.');
     return;
   }
 
   // Parse "kernels" section
   let jTbl = jData['kernels'];
+  let validKernels = [];
+  let isKernelSearch = /^[0-9a-fA-F]{64}$/.test(g.kernel);
+
   if (jTbl) {
     // Loop on all kernels
     for (let i in jTbl) {
       let jRow = jTbl[i];
-      // Check kernel ID
-      if (jRow['id'] == g.kernel) {
-        // Get contract call details
-        // Remark: In the following tests, we use the optional chaining '?.' so that we get an 'undefined' instead of triggering an error, in case any of the properties doesn't exist.
-        let jRow2 = jRow.Contract?.value?.[1];
-        // Check if the kernel corresponds to a contract call
-        if (jRow2 === undefined) {
-          alert('Wrong type of transaction. Please provide the Kernel ID of a call to the DEX smart contract with method "Liquidity Add".');
-          return;
-        }
-        // Check if contract ID is the one of the Beam DEX
-        if (jRow2?.[0]?.value != contractID) {
-          alert('Wrong Contract Id. Please provide the Kernel ID of a call to the DEX smart contract with method "Liquidity Add".');
-          return;
-        }
-        // Check if the call is for adding liquidity to a pool
-        if (jRow2?.[2] != "Liquidity Add") {
-          alert('Wrong Method. Please provide the Kernel ID of a call to the DEX smart contract with method "Liquidity Add".');
-          return;
-        }
+      // Check kernel ID if it's a kernel search
+      if (isKernelSearch && jRow['id'] !== g.kernel) continue;
 
-        // If everything seems ok, reset all global variables (except 'kernel') and their display
-        let k = g.kernel;
-        resetAll();
-        g.kernel = k;
-        updateDisplay();
-
-        // Get values of initial deposit, and convert them to numbers.
-        // Remark: JS might see the values as numbers or strings (depending on their having commas and spaces or not),
-        // so we always convert to string first (to allow using 'replace' to remove commas and spaces) and then to number.
-
-        // Get the asset ids
-        g.AID1 = Number(jRow2[4].value[0][0].value);
-        g.AID2 = Number(jRow2[4].value[1][0].value);
-        g.AMML = Number(jRow2[5].value[0][0].value);
-        // Define default asset names ("Asset-xx", or "BEAM" for id 0)
-        g.AID1Name = (g.AID1 == 0) ? 'BEAM' : 'Asset-' + g.AID1;
-        g.AID2Name = (g.AID2 == 0) ? 'BEAM' : 'Asset-' + g.AID2;
-
-        // Get initial amounts
-        g.initialAID1Amount = jRow2[4].value[0][1].value;
-        g.initialAID1Amount = Number(String(g.initialAID1Amount).replace(/[+, ]/g,''));
-        g.initialAID2Amount = jRow2[4].value[1][1].value;
-        g.initialAID2Amount = Number(String(g.initialAID2Amount).replace(/[+, ]/g,''));
-        g.initialAMMLAmount = jRow2[5].value[0][1].value;
-        g.initialAMMLAmount = Number(String(g.initialAMMLAmount).replace(/[+, ]/g,''));
-        g.feeTierName = jRow2[3].Volatility; // String
-        g.feeTierValue = Number(feeTiers[g.feeTierName]);
-        // Compute initial price
-        computePrices();
+      // Get contract call details
+      // Remark: We use the optional chaining '?.' so that we get an 'undefined' instead of an error, if the properties doesn't exist.
+      let jRow2 = jRow.Contract?.value?.[1];
+      // Check if it's a valid DEX "Liquidity Add" call
+      if (jRow2 !== undefined && jRow2?.[0]?.value == contractID && jRow2?.[2] == "Liquidity Add") {
+        validKernels.push({id: jRow['id'], data: jRow2});
       }
     }
   }
+
+  // Handle results
+  if (validKernels.length === 0) {
+    if (isKernelSearch) {
+      alert('Wrong type of transaction. Please provide the Kernel ID of a call to the DEX smart contract with method "Liquidity Add".');
+    } else {
+      alert('No valid "Liquidity Add" transaction found in this block.');
+    }
+    return;
+  }
+  if (validKernels.length > 1) {
+    alert('Multiple valid DEX transactions found in this block. Please search using the specific Kernel ID instead.');
+    return;
+  }
+
+  // Exactly one valid kernel found
+  let kData = validKernels[0];
+  let jRow2 = kData.data;
+
+  // If everything seems ok, reset all global variables and their display
+  resetAll();
+  g.kernel = kData.id;
+  updateDisplay();
+
+  // Get values of initial deposit, and convert them to numbers.
+  // Remark: JS might see the values as numbers or strings (depending on their having commas and spaces or not),
+  // so we always convert to string first (to allow using 'replace' to remove commas and spaces) and then to number.
+
+  // Get the asset ids
+  g.AID1 = Number(jRow2[4].value[0][0].value);
+  g.AID2 = Number(jRow2[4].value[1][0].value);
+  g.AMML = Number(jRow2[5].value[0][0].value);
+  // Define default asset names ("Asset-xx", or "BEAM" for id 0)
+  g.AID1Name = (g.AID1 == 0) ? 'BEAM' : 'Asset-' + g.AID1;
+  g.AID2Name = (g.AID2 == 0) ? 'BEAM' : 'Asset-' + g.AID2;
+
+  // Get initial amounts
+  g.initialAID1Amount = jRow2[4].value[0][1].value;
+  g.initialAID1Amount = Number(String(g.initialAID1Amount).replace(/[+, ]/g,''));
+  g.initialAID2Amount = jRow2[4].value[1][1].value;
+  g.initialAID2Amount = Number(String(g.initialAID2Amount).replace(/[+, ]/g,''));
+  g.initialAMMLAmount = jRow2[5].value[0][1].value;
+  g.initialAMMLAmount = Number(String(g.initialAMMLAmount).replace(/[+, ]/g,''));
+  g.feeTierName = jRow2[3].Volatility; // String
+  g.feeTierValue = Number(feeTiers[g.feeTierName]);
+  // Compute initial price
+  computePrices();
 
   // Parse "info" section
   let j = jData['info'];
