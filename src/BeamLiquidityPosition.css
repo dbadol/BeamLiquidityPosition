@@ -1,11 +1,11 @@
 /* GENERAL ELEMENTS */
 @font-face {
   font-family: 'ProximaNova';
-  src: url('assets/fonts/ProximaNova-Regular.woff2');
+  src: url('ProximaNova-Regular.woff2');
 }
 @font-face {
   font-family: 'RobotoMono';
-  src: url('assets/fonts/RobotoMono-VariableFont_wght.woff2');
+  src: url('RobotoMono-VariableFont_wght.woff2');
 }
 * {
   box-sizing: border-box; /* Width and height will always include padding and border */
