@@ -5,7 +5,7 @@
 
   <!-- WELCOME TO 'BEAM LIQUIDITY POSITION'!
   - This app computes the current situation a given liquidity position in the Beam DEX.
-  - Current version of the file: v0.1
+  - Current version of the file: v0.2 (wip)
 
   General rules for developement:
   - Vanilla HTML/JS/CSS compatible with Chrome 83 (to allow using it as a Beam Wallet DApp).
@@ -56,7 +56,7 @@
           </a>
         </span>
         <div id="BannerCenter">
-          <h1 id="BeamTitle">Beam Liquidity Position <span id='Version'>v0.1</span></h1>
+          <h1 id="BeamTitle">Beam Liquidity Position <span id='Version'>v0.2 (wip)</span></h1>
         </div>
         <!-- Banner symbols for navigation and special functions -->
         <!--
@@ -82,7 +82,7 @@
             <h3 class="blockTitle">INITIAL DEPOSIT</h3>
             <div class="searchArea">
               <form id="SearchForm" name="SearchForm" action="javascript:submitKernelSearch();">
-                <input id="SearchField" type="text" required value="" size="20" pattern="[0-9a-fA-F]+" placeholder="Kernel Id of the initial deposit in the liquidity pool" title="Enter the Kernel ID of a call to the DEX smart contract with method 'Liquidity Add'." autofocus>
+                <input id="SearchField" type="text" required value="" size="20" pattern="[0-9a-fA-F]+" placeholder="Kernel ID of the initial deposit in the liquidity pool" title="Enter the Kernel ID of a call to the DEX smart contract with method 'Liquidity Add'." autofocus>
                 <button id="SearchButton" type="submit" title="Search kernel">&#x1F50E;&#xFE0E;</button>
               </form>
             </div>
@@ -146,7 +146,7 @@
                   <td><span class="rowUnit"><span class="assetName" data-ammlname>AMML</span> <span class="assetID">(id:<span data-amml>-</span>)</span></span></td>
                 </tr>
                 <tr class="separator">
-                  <td><span class="rowLabel">Current price <span class="swapIcon"><a href="javascript:invertPrices();" title="Switch units"><svg width='1em' height='1em'><use href='#icon_swap'/></svg></a></span></span></td>
+                  <td><span class="rowLabel">Current price <span class="swapIcon"><a href="javascript:invertPrices();" title="Swap units"><svg width='1em' height='1em'><use href='#icon_swap'/></svg></a></span></span></td>
                   <td colspan="2"><span class="rowValue price">1 <span class="assetName" data-pricename2>Asset-B</span> = <span data-poolprice>1</span> <span class="assetName" data-pricename1>Asset-A</span></span></td>
                 </tr>
               </table>
@@ -197,7 +197,7 @@
           </div>
 
           <div class="blockUnit">
-            <h3 class="blockTitle">PROFIT & LOSS <span class="swapIcon"><a href="javascript:invertPnL();" title="Switch units"><svg width='1em' height='1em'><use href='#icon_swap'/></svg></a></span></h3>
+            <h3 class="blockTitle">PROFIT & LOSS <span class="swapIcon"><a href="javascript:invertPnL();" title="Swap units"><svg width='1em' height='1em'><use href='#icon_swap'/></svg></a></span></h3>
             <div class="ListOfValues">
               <table class="blockTable">
                 <tr>

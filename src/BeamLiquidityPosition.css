@@ -1,14 +1,18 @@
 /* GENERAL ELEMENTS */
 @font-face {
   font-family: 'ProximaNova';
-  src: url(ProximaNova-Regular.woff2);
+  src: url('assets/fonts/ProximaNova-Regular.woff2');
+}
+@font-face {
+  font-family: 'RobotoMono';
+  src: url('assets/fonts/RobotoMono-VariableFont_wght.woff2');
 }
 * {
   box-sizing: border-box; /* Width and height will always include padding and border */
   outline: none; /* Copied from the DEX dApp */
 }
 html, body {
-  font-family: 'ProximaNova', Arial, Helvetica, sans-serif; /* Default fonts */
+  font-family: 'ProximaNova', Arial, sans-serif; /* Default fonts */
   font-size: 62.5%; /* Since default browser font size is generally 16px, this sets an easy '1rem = 10px' */
   line-height: 1; /* From a CSS reset template */
   margin: 0; /* Copied from the DEX dApp */
@@ -51,6 +55,7 @@ html, body {
   --color-opacity-7: rgba(255, 255, 255, 0.7);
   --color-opacity-8: rgba(255, 255, 255, 0.8);
   --color-opacity-9: rgba(255, 255, 255, 0.9);
+  --color-shadow: rgba(0,0,0,0.6);
   /* Color variables */
   --color-text: var(--color-off-white);
   --color-text-bright: var(--color-white);
@@ -77,17 +82,14 @@ html, body {
   --color-icon-shadow: var(--color-opacity-5);
   --color-positive: #00bb00;
   --color-negative: #ff5a4a;
-  --color-search-background: var(--color-opacity-1);
+  --color-search-background: var(--color-darkest-blue);
   --color-search-placeholder: #aaa;
   --color-search-text: #eee;
+  --color-search-border: var(--color-opacity-2);
   --color-search-border-filled: var(--color-light-blue);
   --color-search-background-filled: var(--color-opacity-1);
   --color-search-text-invalid: #ff8686;
-  --color-search-button-border: #636785;
-  --color-search-button-background: var(--color-opacity-3);
-  --color-search-button-text: #ddd;
-  --color-search-button-background-hover: var(--color-opacity-4);
-  --color-search-button-text-hover: black;
+  --color-search-button-text: var(--color-white);
   --color-scroll-button: #2b618d;
   --color-scroll-text: white;
   --color-blockheight: var(--color-text-bright);
@@ -95,6 +97,7 @@ html, body {
   --color-duration: var(--color-text-dimer);
   --color-logo-shadow: var(--color-opacity-3);
   --color-banner-background: var(--color-opacity-05);
+  --color-banner-background-fixed: #113f64;
   --color-banner-title: var(--color-light-blue);
   --color-banner-version: var(--color-green);
   --color-footer-text: var(--color-light-blue);
@@ -102,7 +105,7 @@ html, body {
   --color-about-title: var(--color-title);
   --color-about-text: var(--color-text-dim);
   --color-about-link: var(--color-text-dim);
-  --color-disclaimer: var(--color-text-dim);
+  --color-disclaimer: var(--color-text-dimer);
   --color-node-url: var(--color-green);
 }
 :root { /* Background compatible with Beam Wallet (copied from the dao-core-app) */
@@ -114,6 +117,9 @@ html, body {
 body {
   display: block; /* Copied from the DEX dApp */
   margin: 0; /* Copied from the dao-core-app */
+  font-family: 'ProximaNova', 'Arial', sans-serif;
+  color: var(--color-text);
+  padding: 0;
 }
 :link { color: var(--color-link); } /* Default link colors */
 :visited { color: var(--color-link-visited); }
@@ -121,18 +127,19 @@ body {
 
 /* TITLE BANNER AND FOOTER */
 #Page-container {
-  position: relative;
-  min-height: 96vh; /* Always use the whole screen space, so that the footer stays at the bottom */
-  width: 96vw;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   padding: 8px;
 }
 #Content-wrap {
-  padding-bottom: 1.8rem; /* Leave some space for the footer */
+  flex: 1;
 }
 #Banner {
-  display: table; /* Display as table to organize its content */
+  display: flex;
+  align-items: center;
   width: 100%;
-  max-width: 928px; /* Remove this for full width */
+  max-width: 920px; /* Remove this for full width */
   min-width: 460px; /* Remove this for full width */
   margin: auto; /* Keep horizontally centered */
   background-color: var(--color-banner-background);
@@ -140,68 +147,61 @@ body {
   padding: 8px 10px 7px 10px;
   text-align: center;
 }
-#BeamLogo {
-  display: table-cell;
-  vertical-align: middle;
-  text-align: left;
+#BeamLogo svg {
+  height: 50px;
+  width: 50px;
 }
 #BeamLogo:hover svg {
   filter: saturate(1.5) drop-shadow(0 0 5px var(--color-logo-shadow));
 }
-#BannerCenter{
-  display: table-cell;
-  vertical-align: middle;
-  text-align: center;
-  width: 100%;
+#BannerCenter {
+  flex: 1;
   white-space: nowrap; /* Don't wrap text */
   padding: 0 10px 0 10px;
 }
 #BeamTitle {
   font-size: 2.4rem;
   color: var(--color-banner-title);
-  margin: 0 0 5px 0;
 }
 #Version {
   font-size: 1rem;
   color: var(--color-banner-version);
 }
+/* FLOATING BUTTONS */
 #TopButton, #BottomButton {
   position: fixed; /* Fixed position */
-  z-index: 99; /* Make sure it does not overlap */
+  right: 25px; /* Right side of the page */
+  z-index: 1001; /* Make sure they overlap everything */
   cursor: pointer; /* Mouse pointer on hover */
   border: none; /* Remove borders */
-  outline: none; /* Remove outline */
   border-radius: 50%; /* Round button */
-  background-color: var(--color-scroll-button); /* Background color */
-  opacity: 0.2; /* Very transparent */
-  text-align: center;
-  font-size: 1.5rem;
-  color: var(--color-scroll-text); /* Text color */
-  padding: 10px; /* Some padding */
+  background: var(--color-scroll-button);
+  opacity: 0.4; /* Very transparent */
+  transition: opacity 0.2s;
+  color: var(--color-scroll-text);
+  width: 44px;
+  height: 44px;
+  font-size: 1.6rem;
 }
 #TopButton {
   display: none; /* Hidden by default */
-  bottom: 50px; /* Bottom of the page */
-  right: 10px; /* Right side of the page */
+  bottom: 80px;
 }
 #BottomButton {
   display: block; /* Shown by default */
-  bottom: 10px; /* Bottom of the page */
-  right: 10px; /* Right side of the page */
+  bottom: 25px;
 }
 #TopButton:hover, #BottomButton:hover {
-  opacity: 0.4; /* Less transparent on hover */
+  opacity: 1; /* Less transparent on hover */
 }
+/* FOOTER */
 #Footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
   text-align: center;
   color: var(--color-footer-text);
   font-weight: bold;
   white-space: nowrap; /* Don't wrap text */
   font-size: 1.2rem;
-  height: 1.8rem; /* Footer height */
+  padding: 10px;
 }
 #Footer a {
   color: var(--color-footer-link);
@@ -216,7 +216,6 @@ body {
 #Footer::after {
   content: "\00a0 \25c2"; /* Nice useless decoration ;-) */
 }
-
 /* CONTAINERS */
 #MainContent { /* Copied from the DEX dApp */
   padding: 20px 0 20px 0;
@@ -232,8 +231,7 @@ body {
   width: 100%;
   margin: auto;
 }
-.blockUnit {
-  /* Copied from the DEX dApp */
+.blockUnit { /* Copied from the DEX dApp */
   padding: 20px;
   margin: 10px;
   text-align: left;
@@ -242,33 +240,35 @@ body {
   max-width: 442px;
   min-width: 400px;
   border-radius: 10px;
-  /* Use flexbox to better control the vertical positionning of the tables inside these blocks */
-  display: flex;
-  flex-direction: column;
 }
-
+.blockTitle { /* Copied from the DEX dApp */
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: left;
+  letter-spacing: 3.11111px;
+  color: var(--color-title);
+  margin-bottom: 20px;
+  white-space: nowrap;
+}
 /* SEARCH FIELD */
 .searchArea {
-  display: block;
-  width: 100%;
-  padding: 0 0 8px 0;
+  margin-bottom: 15px;
 }
 #SearchForm {
-  /* Nothing special */
+  display: flex;
+  gap: 8px;
 }
 #SearchField {
-  display: inline-block;
+  flex: 1;
   border-radius: 5px; /* Slightly round corners */
-  border: none;
-  background-color: var(--color-search-background);
-  padding: 1.5ch 1ch 1.2ch 1ch; /* Internal padding */
-  font-family: "Lucida Console", ui-monospace, monospace; /* Switch to monospace font */
+  border: 1px solid var(--color-search-border);
+  background: var(--color-search-background);
+  font-family: 'RobotoMono', ui-monospace, monospace; /* Switch to monospace font */
   font-size: 1.2rem;
-  width: calc(100% - 3rem - 3px); /* Full width, minus the Search button */
   color: var(--color-search-text);
-  height: 3rem;
-  text-decoration: none;
-  vertical-align: middle;
+  padding: 10px;
 }
 #SearchField:focus {
   outline: none; /* Avoid the browser default focus outline */
@@ -286,34 +286,25 @@ body {
   color: var(--color-search-text);
 }
 #SearchField::placeholder {
-  font-family: Arial, Helvetica, sans-serif; /* Font for the placeholder text */
+  font-family: 'ProximaNova', Arial, sans-serif; /* Font for the placeholder text */
   font-size: 1.3rem;
   font-style: italic;
   color: var(--color-search-placeholder);
   text-decoration: none;
 }
 #SearchButton {
-  display: inline-block;
   border: none;
-  border: 1px solid var(--color-search-button-border);
   border-radius: 5px; /* Slightly round corners */
-  background-color: var(--color-search-button-background);
+  background: var(--color-blue);
   color: var(--color-search-button-text);
-  height: 2.9rem;
-  width: 2.9rem;
+  padding: 6px 12px;
+  cursor: pointer;
   font-size: 1.4rem;
-  text-align: center;
-  vertical-align: middle;
-  text-decoration: none;
-  padding: 0;
 }
 #SearchButton:hover {
-  background-color: var(--color-search-button-background-hover);
-  color: var(--color-search-button-text-hover);
   cursor: pointer; /* Mouse pointer on hover */
-  filter: drop-shadow(0 0 1px var(--color-search-button-background-hover));
+  filter: drop-shadow(0 0 10px var(--color-shadow));
 }
-
 /* FORMAT TABLES */
 table, td, th {
   color: var(--color-text); /* Default text color */
@@ -322,74 +313,49 @@ table, td, th {
   border: none;
   padding: 5px; /* Add a small padding */
 }
-.listOfValues {
-  margin-top: auto; /* Keep the tables at the bottom of their parent flexbox */
-}
+.listOfValues { }
 .blockTable {
   width: 100%;
-  max-width: 412px; /* Same as blockUnit (minus padding) */
-  min-width: 360px; /* Same as blockUnit (minus padding) */
+  /* max-width: 412px; /* Same as blockUnit (minus padding) */
+  /* min-width: 360px; /* Same as blockUnit (minus padding) */
 }
-.blockTable tr td:nth-child(1) { /* Trick to make the first column fit its text width (because 'fit-content' does not seem to work...) */
-  width: 1%;
-  white-space: nowrap;
+.blockTable td {
+  padding: 8px 0;
+  vertical-align: baseline;
 }
-.blockTable tr td:nth-child(2) { /* Avoid the second column being too narrow when empty */
-  min-width: 30%;
+.separator {
+  border-top: 1px solid var(--color-opacity-2);
 }
-tr.separator td > span { /* Add space above certain rows */
-  margin-top: 15px;
-}
-
 /* FORMAT TEXT */
-.blockTitle { /* Copied from the DEX dApp */
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  text-align: left;
-  letter-spacing: 3.11111px;
-  color: var(--color-title);
-  margin-bottom: 20px;
-  white-space: nowrap;
-}
 .rowLabel {
-  display: block;
-  font-style: normal;
   font-weight: 400;
   font-size: 1.4rem;
-  line-height: 14px;
   white-space: nowrap;
-  text-align: left;
   color: var(--color-text-dim);
   margin-right: 10px;
 }
 .rowValue {
-  /*font-family: ui-monospace, monospace; /* Switch to monospace font */
-  display: block;
-  font-style: normal;
+  /*font-family: 'RobotoMono', ui-monospace, monospace; */
+  display: inline-block; /* Because block-level elements can sometimes interfere with the baseline alignment logic */
+  width: 100%;
   font-weight: 400;
   font-size: 1.4rem;
-  line-height: 17px;
   white-space: nowrap;
   text-align: right;
   color: var(--color-amount);
 }
 .rowUnit {
-  display: block;
-  font-style: normal;
   font-weight: 400;
   font-size: 1.2rem;
-  line-height: 17px;
   white-space: nowrap;
-  text-align: left;
   color: var(--color-text);
+  padding-left: 12px;
 }
 .blockHeight {
-  font-family: "Courier New", ui-monospace, monospace;
+  font-family: 'RobotoMono', ui-monospace, monospace;
   font-weight: normal;
   text-align: right;
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   letter-spacing: 2px;
   color: var(--color-blockheight);
 }
@@ -400,7 +366,6 @@ tr.separator td > span { /* Add space above certain rows */
 .dateAndTime {
   font-size: 1.25rem;
   color: var(--color-date-and-time);
-  text-align: left;
 }
 .duration {
   font-size: 1.35rem;
@@ -426,7 +391,6 @@ tr.separator td > span { /* Add space above certain rows */
 .assetID {
   font-weight: 400;
   font-size: 1.2rem;
-  line-height: 14px;
   margin-left: 4px;
   color: var(--color-asset-id);
 }
@@ -446,58 +410,43 @@ tr.separator td > span { /* Add space above certain rows */
   color: var(--color-negative);
   font-weight: bold;
 }
-
 /* ICONS */
-.refreshIcon, .swapIcon {
-  display: inline-block;
+.refreshIcon, .swapIcon, .infoIcon {
+  display: inline-flex;
+  align-items: center;
   vertical-align: middle;
-  text-align: center;
-  margin: 0 5px 0 5px;
+  margin: 0 5px;
   cursor: pointer;
 }
-.refreshIcon *, .swapIcon * {
+.refreshIcon svg, .swapIcon svg, .infoIcon svg {
   fill: var(--color-icon); /* Color all SVG elements */
-}
-.refreshIcon:hover *, .swapIcon:hover * {
-  fill: var(--color-icon-hover); /* Color all SVG elements */
+  transition: fill 0.2s;
 }
 .refreshIcon:hover svg, .swapIcon:hover svg {
+  fill: var(--color-icon-hover); /* Color all SVG elements */
   filter: drop-shadow(0 0 2px var(--color-icon-shadow)); /* Add a shadow to SVG */
 }
-.infoIcon * {
+.infoIcon svg {
   stroke: var(--color-icon); /* Color all SVG elements */
   cursor: help;
 }
-.infoIcon:hover * {
+.infoIcon:hover svg {
   stroke: var(--color-icon-shadow); /* Color all SVG elements */
 }
-
 /* COLLAPSIBLES */
 .collapsible {
-  display: block;
-  width: 100%;
+  background: var(--color-collapsible-background-open);
+  border-radius: 10px;
+  padding: 12px;
 }
 /* Collapsible header */
 .collapsible-label {
   display: block; /* When display is not the default 'list-item', the default triangle disapears */
-  width: fit-content; /* Uses only its own needed width */
   white-space: nowrap; /* Never wrap text */
   background-color: var(--color-collapsible-background-close); /* Background when closed */
-  padding: 10px;
-  outline: none;
-  border: none;
-  border-radius: 10px; /* Slightly round corners */
-}
-.collapsible-label:hover {
-  background-color: var(--color-collapsible-hover);
+  padding: 5px 10px;
   cursor: pointer;
 }
-.collapsible[open] > .collapsible-label {
-  background-color: var(--color-collapsible-background-open); /* Background when open */
-  border-bottom-right-radius: 0; /* Remove bottom round corners when expanded... */
-  border-bottom-left-radius: 0; /* ...just because it's nice! :-) */
-}
-/* Collapsible symbols */
 .collapsible-label::-webkit-details-marker { /* On Chrome 83, this is needed to hide the default triangle */
   display: none;
 }
@@ -517,19 +466,13 @@ tr.separator td > span { /* Add space above certain rows */
 .collapsible-content {
   display: block;
   width: 100%;
-  background-color: var(--color-collapsible-content-background);
   border-radius: 10px; /* Slightly round corners */
-  padding: 20px;
+  padding: 15px 10px 10px 10px;
 }
-.collapsible[open] > .collapsible-content {
-  border-top-left-radius: 0; /* Remove one round corner when expanded */
-}
-
-/* ABOUT AREA */
+/* ABOUT SECTION */
 #AboutBlock {
-  display: block;
   width: 100%;
-  max-width: 948px;
+  max-width: 938px;
   min-width: 418px;
   padding: 10px;
   margin: auto;
@@ -543,12 +486,10 @@ tr.separator td > span { /* Add space above certain rows */
   letter-spacing: 3.11111px;
   color: var(--color-about-title);
   white-space: nowrap;
-  padding: 0 10px 0 10px;
 }
 .aboutText {
   font-weight: 400;
   font-size: 1.4rem;
-  line-height: 14px;
   color: var(--color-about-text);
   line-height: 1.9rem;
   padding-bottom: 10px;
@@ -557,7 +498,7 @@ tr.separator td > span { /* Add space above certain rows */
   color: var(--color-about-link);
 }
 .explorerNodeURL {
-  font-family: "Lucida Console", ui-monospace, monospace;
+  font-family: 'RobotoMono', ui-monospace, monospace;
   font-size: 1.2rem;
   color: var(--color-node-url);
   vertical-align: middle;
@@ -565,7 +506,7 @@ tr.separator td > span { /* Add space above certain rows */
   margin-left: 5px;
 }
 .aboutDisclaimer {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   color: var(--color-disclaimer);
   line-height: 1.9rem;
   font-style: italic;

@@ -1,10 +1,9 @@
 // Force safer JavaScript code (e.g. forbids using undeclared variables, etc.).
-"use strict";
+'use strict';
 
 // *** COMMENTS ***
 
-// - This script must be called at end of <body>, or in <head> with keyword 'defer'.
-
+// - This script file must be called at end of <body>, or in <head> with keyword 'defer'.
 
 // *** DISPLAY FORMATS ***
 
@@ -74,10 +73,10 @@ function formatDuration(ms) {
 
 // Address of the remote explorer node
 //const urlPrefix = 'http://localhost:8888/';
-//const urlPrefix = 'http://116.203.118.51:8100/';
-const urlPrefix = 'https://explorer-api.beamprivacy.community/';
+//const urlPrefix = 'https://explorer-api.beamprivacy.community/';
+const urlPrefix = 'http://BeamSmart.net:8000/';
 
-// Request 'nice' formatting from the node (timestamps as YYYYY-MM-DD, amounts as XXX,XXX,XXX.YYYYYYYY, etc.)
+// Request 'nice' formatting from the node
 const urlSuffix = '?exp_am=1';
 
 // DEX contract ID
@@ -519,15 +518,15 @@ function invertPnL() {
 
 // *** SCROLL BUTTONS ***
 
-// When the user scrolls away 40px from top or bottom of the page, show the up or down buttons
+// When the user scrolls 40px away from top or bottom of the page, show the up or down buttons
 function scrollFunction() {
-  let myTopButton = document.getElementById('TopButton');
+  const myTopButton = document.getElementById('TopButton');
   if (document.body.scrollTop > 40 || document.documentElement.scrollTop > 40) {
     myTopButton.style.display = 'block';
   } else {
     myTopButton.style.display = 'none';
   }
-  let myBottomButton = document.getElementById('BottomButton');
+  const myBottomButton = document.getElementById('BottomButton');
   if (Math.abs(document.body.scrollHeight - document.body.scrollTop - document.body.clientHeight) < 40 || Math.abs(document.documentElement.scrollHeight - document.documentElement.scrollTop - document.documentElement.clientHeight) < 40) {
     myBottomButton.style.display = 'none';
   } else {
@@ -548,7 +547,7 @@ function bottomFunction() {
 // *** EXECUTION ***
 
 // Scroll buttons
-window.onscroll = function () { scrollFunction() };
+window.onscroll = function() { scrollFunction() };
 
 // Display default values in the newly loaded page
 document.querySelector('.explorerNodeURL').textContent = urlPrefix;
