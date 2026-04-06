@@ -124,11 +124,25 @@ const g = {
   AID2Total: undefined, // Total current position of Asset 2
   totalInitialValue: undefined, // Total value of the initial position (in units of Asset 1 or 2)
   totalCurrentValue: undefined, // Total value of the current position (in units of Asset 1 or 2)
-  totalHodlValue: undefined, // Total value if the coins had been held instead of deposited in LP (in units of Asset 1 or 2)
   totalProfit: undefined, // Profits made between initial and current position (in units of Asset 1 or 2)
-  totalIL: undefined, // Impermanent Loss (in units of Asset 1 or 2)
+  totalAllInAsset1Value: undefined, // Total value if all coins were swapped to Asset 1 at start
+  totalAllInAsset1Profit: undefined, // Profit/Loss compared to All in Asset 1
+  totalAllInAsset2Value: undefined, // Total value if all coins were swapped to Asset 2 at start
+  totalAllInAsset2Profit: undefined, // Profit/Loss compared to All in Asset 2
+  totalROI: undefined, // Return on Investment (ratio)
+  totalAPR: undefined, // Annual Percentage Rate (ratio)
+  priceChange: undefined, // Price change of the pair (ratio)
   AIDPnL: undefined, // ID of the Asset used to compute PnL
   AIDPnLName: undefined, // Name of the Asset used to compute PnL
+  hypoCurrentValue: undefined, // Current worth for Hypo block
+  hypoHodlValue: undefined, // Total worth if the coins had been held instead of deposited in LP (in units of Asset 1 or 2)
+  hypoHodlDiff: undefined, // Difference of current with the Hodl scenario
+  hypoA1Value: undefined, // Total worth if the coins had been held all in Asset 1 instead of deposited in LP (in units of Asset 1 or 2)
+  hypoA1Diff: undefined, // Difference of current with the all-in-Asset-1 scenario
+  hypoA2Value: undefined, // Total worth if the coins had been held all in Asset 2 instead of deposited in LP (in units of Asset 1 or 2)
+  hypoA2Diff: undefined, // Difference of current with the all-in-Asset-2 scenario
+  AIDHypo: undefined, // ID of the Asset used to compute Hypotheticals
+  AIDHypoName: undefined, // Name of the Asset used to compute Hypotheticals
 }
 // Default text to display when the variable is 'undefined'
 const defaultValue = {
@@ -165,11 +179,25 @@ const defaultValue = {
   AID2Total: '-',
   totalInitialValue: '-',
   totalCurrentValue: '-',
-  totalHodlValue: '-',
   totalProfit: '-',
-  totalIL: '-',
+  totalAllInAsset1Value: '-',
+  totalAllInAsset1Profit: '-',
+  totalAllInAsset2Value: '-',
+  totalAllInAsset2Profit: '-',
+  totalROI: '-',
+  totalAPR: '-',
+  priceChange: '-',
   AIDPnL: '-',
   AIDPnLName: 'Asset-A',
+  hypoCurrentValue: '-',
+  hypoHodlValue: '-',
+  hypoHodlDiff: '-',
+  hypoA1Value: '-',
+  hypoA1Diff: '-',
+  hypoA2Value: '-',
+  hypoA2Diff: '-',
+  AIDHypo: '-',
+  AIDHypoName: 'Asset-A',
 }
 // Special display formats of certain variables
 const displayFormat = {
@@ -191,9 +219,21 @@ const displayFormat = {
   AID2Total: formatAmount,
   totalInitialValue: formatAmount,
   totalCurrentValue: formatAmount,
-  totalHodlValue: formatAmount,
   totalProfit: formatAmount,
-  totalIL: formatAmount,
+  totalAllInAsset1Value: formatAmount,
+  totalAllInAsset1Profit: formatAmount,
+  totalAllInAsset2Value: formatAmount,
+  totalAllInAsset2Profit: formatAmount,
+  totalROI: formatPercent,
+  totalAPR: formatPercent,
+  priceChange: formatPercent,
+  hypoCurrentValue: formatAmount,
+  hypoHodlValue: formatAmount,
+  hypoHodlDiff: formatAmount,
+  hypoA1Value: formatAmount,
+  hypoA1Diff: formatAmount,
+  hypoA2Value: formatAmount,
+  hypoA2Diff: formatAmount,
 }
 
 // *** FUNCTIONS ***
@@ -322,7 +362,11 @@ function updateNodeDisplay() {
   const nodeCurrentName = document.getElementById('NodeCurrentName');
   const url = new URL(currentNodeUrl);
   nodeCurrentName.textContent = url.hostname;
-  
+
+  // Reset node status classes
+  const nodeStatusIcon = document.getElementById('NodeStatusIcon');
+  nodeStatusIcon.classList.remove('online', 'offline');
+
   // Update active class in dropdown
   const options = document.querySelectorAll('.node-option');
   options.forEach(opt => {
@@ -344,7 +388,7 @@ function selectNode(url) {
   localStorage.setItem('beam_node_url', url);
   updateNodeDisplay();
   checkNodeStatus();
-  // Optionally trigger a refresh of data if a search was already performed
+  // Trigger a refresh of data if a search was already performed
   if (document.getElementById('SearchField').value) {
     submitKernelSearch();
   }
@@ -352,24 +396,28 @@ function selectNode(url) {
 
 async function checkNodeStatus() {
   const nodeStatusIcon = document.getElementById('NodeStatusIcon');
-  nodeStatusIcon.className = ''; // Reset
+  if (!nodeStatusIcon) return;
   
+  // For simplicity, we'll try to fetch the base URL with a short timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000); // Set timeout to 5s
   try {
-    // For simplicity, we'll try to fetch the base URL with a short timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-    const response = await fetch(currentNodeUrl, { 
+    await fetch(currentNodeUrl, { 
       method: 'GET', 
       mode: 'no-cors', // Many nodes won't have CORS enabled for simple GET
       signal: controller.signal 
     });
-    
-    clearTimeout(timeoutId);
+    nodeStatusIcon.classList.remove('offline');
     nodeStatusIcon.classList.add('online');
   } catch (error) {
-    console.error('Node status check failed:', error);
+    // Only log actual errors, not timeouts (aborts)
+    if (error.name !== 'AbortError') {
+      console.error('Node status check failed:', error);
+    }
+    nodeStatusIcon.classList.remove('online');
     nodeStatusIcon.classList.add('offline');
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
@@ -388,9 +436,14 @@ function updateDisplay() {
     // Display the variable value everywhere in HTML
     document.querySelectorAll(data).forEach(e => { e.innerHTML = text; });
   }
-  // For certain values, store the value sign in the data attributes
-  document.querySelector('[data-totalprofit]').dataset.totalprofit = (g.totalProfit >= 0);
-  document.querySelector('[data-totalil]').dataset.totalil = (g.totalIL >= 0);
+  // For certain values, store the value sign (true or false) in the data attributes
+  const signedAttributes = ['totalProfit', 'totalROI', 'totalAPR', 'priceChange', 'hypoHodlDiff', 'hypoA1Diff', 'hypoA2Diff'];
+  signedAttributes.forEach(item => { // Loop on all elements with each of those data attributes
+    const value = g[item];
+    // Remark: 'value >= 0' with 'undefined' or '-' would return 'false' (i.e. negative color)
+    const sign = (typeof value === 'number') ? (value >= 0) : '';
+    document.querySelectorAll(`[data-${item.toLowerCase()}]`).forEach(e => e.setAttribute('data-profit-sign', sign));
+  });
 }
 
 // Launch a kernel search request
@@ -613,8 +666,8 @@ function parsePoolQuery() {
   let txt = now.toISOString().split('T');
   g.currentDate = txt[0] + ' ' + txt[1].split('.')[0];
   // Compute time spent in the pool
-  let durationInMs = Date.parse(g.currentDate) - Date.parse(g.initialDate);
-  g.durationInPool = formatDuration(durationInMs); // Human readable format
+  g.durationInMs = Date.parse(g.currentDate) - Date.parse(g.initialDate);
+  g.durationInPool = formatDuration(g.durationInMs); // Human readable format
 
   // Parse "Pools" section
   let jTbl = jData['State']['Pools'].value;
@@ -642,6 +695,8 @@ function parsePoolQuery() {
   computeFees();
   // Compute profit & loss
   computePnL();
+  // Compute hypotheticals
+  computeHypo();
   // Update values in HTML
   updateDisplay();
 }
@@ -671,23 +726,67 @@ function computePnL() {
   if (!g.AMML) { return; };
   // Define active unit is not done yet
   if (g.AIDPnL === undefined) { g.AIDPnL = g.AID1; g.AIDPnLName = g.AID1Name; }
+
   if (g.AIDPnL == g.AID1) {
     // Liquidity pairs are always balanced, so total value is simply the double of any one
     g.totalInitialValue = 2 * g.initialAID1Amount;
     g.totalCurrentValue = 2 * g.AID1Total;
-    // Current value (hypothetical) of the original amounts
-    g.totalHodlValue = g.initialAID1Amount + (g.initialAID2Amount * g.poolAID1Amount / g.poolAID2Amount);
   }
   if (g.AIDPnL == g.AID2) {
     // Liquidity pairs are always balanced, so total value is simply the double of any one
     g.totalInitialValue = 2 * g.initialAID2Amount;
     g.totalCurrentValue = 2 * g.AID2Total;
-    // Current value (hypothetical) of the original amounts
-    g.totalHodlValue = (g.initialAID1Amount * g.poolAID2Amount / g.poolAID1Amount) + g.initialAID2Amount;
   }
-  // Compute profit and IL
+  // Compute profit or loss
   g.totalProfit = g.totalCurrentValue - g.totalInitialValue;
-  g.totalIL = g.totalCurrentValue - g.totalHodlValue;
+  
+  // Compute ROI (as ratio)
+  g.totalROI = (g.totalCurrentValue / g.totalInitialValue) - 1;
+
+  // Compute estimated APR = ROI * (365 days / duration in days)
+  g.totalAPR = (g.durationInMs > 0) ? g.totalROI * (365 * 24 * 60 * 60 * 1000 / g.durationInMs) : 0;
+
+  // Compute price change of the pair
+  if (g.AIDPnL == g.AID1) {
+    // Change of price of Asset 2 in Asset 1
+    const entryPrice = g.initialAID1Amount / g.initialAID2Amount;
+    const currentPrice = g.poolAID1Amount / g.poolAID2Amount;
+    g.priceChange = (currentPrice / entryPrice) - 1;
+  } else {
+    // Change of price of Asset 1 in Asset 2
+    const entryPrice = g.initialAID2Amount / g.initialAID1Amount;
+    const currentPrice = g.poolAID2Amount / g.poolAID1Amount;
+    g.priceChange = (currentPrice / entryPrice) - 1;
+  }
+}
+
+// Compute hypotheticals
+function computeHypo() {
+  // Only do something if a pool has already been defined
+  if (!g.AMML) { return; };
+  // Define active unit is not done yet
+  if (g.AIDHypo === undefined) { g.AIDHypo = g.AID1; g.AIDHypoName = g.AID1Name; }
+  // Compute current worth for the hypothetical scenarios
+  if (g.AIDHypo == g.AID1) {
+    // Liquidity pairs are always balanced, so total value is simply the double of any one
+    g.hypoCurrentValue = 2 * g.AID1Total;
+    // Hypothetical worth for each scenario
+    g.hypoHodlValue = g.initialAID1Amount + (g.initialAID2Amount * g.poolAID1Amount / g.poolAID2Amount);
+    g.hypoA1Value = 2 * g.initialAID1Amount;
+    g.hypoA2Value = (2 * g.initialAID2Amount) * (g.poolAID1Amount / g.poolAID2Amount);
+  }
+  if (g.AIDHypo == g.AID2) {
+    // Liquidity pairs are always balanced, so total value is simply the double of any one
+    g.hypoCurrentValue = 2 * g.AID2Total;
+    // Hypothetical worth for each scenario
+    g.hypoHodlValue = (g.initialAID1Amount * g.poolAID2Amount / g.poolAID1Amount) + g.initialAID2Amount;
+    g.hypoA1Value = (2 * g.initialAID1Amount) * (g.poolAID2Amount / g.poolAID1Amount);
+    g.hypoA2Value = 2 * g.initialAID2Amount;
+  }
+  // Compare current worth to the hypothetical scenarios
+  g.hypoHodlDiff = g.hypoCurrentValue - g.hypoHodlValue;
+  g.hypoA1Diff = g.hypoCurrentValue - g.hypoA1Value;
+  g.hypoA2Diff = g.hypoCurrentValue - g.hypoA2Value;
 }
 
 // Switch the unit used for computing PnL
@@ -697,6 +796,17 @@ function invertPnL() {
   g.AIDPnL = (g.AIDPnL == g.AID1) ? g.AID2 : g.AID1;
   // Recompute PnL
   computePnL();
+  // Update values in HTML
+  updateDisplay();
+}
+
+// Switch the unit used for computing Hypotheticals
+function invertHypo() {
+  // Switch the unit used to compute Hypotheticals
+  g.AIDHypoName = (g.AIDHypo == g.AID1) ? g.AID2Name : g.AID1Name;
+  g.AIDHypo = (g.AIDHypo == g.AID1) ? g.AID2 : g.AID1;
+  // Recompute Hypotheticals
+  computeHypo();
   // Update values in HTML
   updateDisplay();
 }

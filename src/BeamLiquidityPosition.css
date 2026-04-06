@@ -107,6 +107,7 @@ html, body {
   --color-about-link: var(--color-text-dim);
   --color-disclaimer: var(--color-text-dimer);
   --color-node-url: var(--color-green);
+  --color-node-unknown: #AAAAAA;
   --color-node-on: #00ff00;
   --color-node-off: #ff4444;
 }
@@ -186,7 +187,8 @@ body {
   height: 10px;
   border-radius: 50%;
   margin-right: 8px;
-  background-color: var(--color-node-off);
+  background-color: var(--color-node-unknown);
+  box-shadow: none;
 }
 #NodeStatusIcon.online {
   background-color: var(--color-node-on);
@@ -501,19 +503,19 @@ table, td, th {
   margin-left: 4px;
   color: var(--color-asset-id);
 }
-[data-initialaid1amount], [data-initialaid2amount] { /* Style for initial amounts */
+[data-initialaid1amount], [data-initialaid2amount], [data-totalinitialvalue] { /* Style for initial amounts */
   color: var(--color-initial-amount);
   font-weight: bold;
 }
-[data-aid2total], [data-aid1total] { /* Style for current amounts */
+[data-aid2total], [data-aid1total], [data-totalcurrentvalue], [data-hypocurrentvalue] { /* Style for current amounts */
   color: var(--color-current-amount);
   font-weight: bold;
 }
-[data-totalprofit="true"], [data-totalil="true"] { /* Style for positive PnL values */
+[data-profit-sign="true"] { /* Style for certain positive values */
   color: var(--color-positive);
   font-weight: bold;
 }
-[data-totalprofit="false"], [data-totalil="false"] { /* Style for negative PnL values */
+[data-profit-sign="false"] { /* Style for certain negative values */
   color: var(--color-negative);
   font-weight: bold;
 }
