@@ -94,7 +94,7 @@ const g = {
   kernel: undefined, // Kernel of initial deposit
   initialHeight: undefined, // Blockheight of the initial deposit
   initialDate: undefined, // Date of the initial deposit
-  //currentHeight: undefined, // Current blockheight
+  currentHeight: undefined, // Current blockheight
   currentDate: undefined, // Current date
   durationInPool: undefined, // Total duration since deposit
   AMML: undefined, // AMML Id of the pool considered
@@ -149,7 +149,7 @@ const defaultValue = {
   kernel: undefined,
   initialHeight: '-',
   initialDate: '',
-  //currentHeight: '-',
+  currentHeight: '-',
   currentDate: '',
   durationInPool: '-',
   AMML: '-',
@@ -660,6 +660,9 @@ function submitPoolQuery() {
 function parsePoolQuery() {
   // Parse explorer node response
   const jData = JSON.parse(this.responseText);
+
+  // Get current block height
+  g.currentHeight = jData['h'];
 
   // Format current date as a string
   let now = new Date(); // Returns a date object with the current date and time (relative to local time zone).
