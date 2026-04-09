@@ -40,6 +40,8 @@
   <svg style='display:none'><symbol id='icon_info' fill='none' viewBox='0 0 24 24'><circle cx='12' cy='12' r='11' stroke-width='2'/><circle cx='12' cy='5.8' r='1.2' stroke-width='2.4'/><path d='M12 20V9.5' stroke-width='4'/></symbol></svg>
   <svg style='display:none'><symbol id='icon_swap' viewBox='2 3 20 20'><path d='M4 9h13l-1.6 1.2a1 1 0 0 0-.2 1.4 1 1 0 0 0 .8.4 1 1 0 0 0 .6-.2l4-3a1 1 0 0 0 0-1.59l-3.86-3a1 1 0 0 0-1.23 1.58L17.08 7H4a1 1 0 0 0 0 2z'/><path d='M20 16H7l1.6-1.2a1 1 0 0 0-1.2-1.6l-4 3a1 1 0 0 0 0 1.59l3.86 3a1 1 0 0 0 .61.21 1 1 0 0 0 .79-.39 1 1 0 0 0-.17-1.4L6.92 18H20a1 1 0 0 0 0-2z'/></symbol></svg>
   <svg style='display:none'><symbol id='icon_refresh' viewBox='0 10 120 105'><path d='M 91 42 A 36 36 0 1 0 87 84 L 101 98 A 56 56 0 1 1 108 32 Z'/><polygon points='120,25 120,69 76,50'/></symbol></svg>
+  <svg style='display:none'><symbol id='icon_star' viewBox='0 0 24 24'><path d='M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z'/></symbol></svg>
+  <svg style='display:none'><symbol id='icon_bookmark' viewBox='0 0 24 24'><path d='M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z'/></symbol></svg>
   <!-- <svg style='display:none'><symbol id='icon_back' viewBox='3 1 60 34'><path d='M3 18L19 2v10h42v12H19v10z'/></symbol></svg> -->
 
   <!-- Wrappers (added just to keep footer at the bottom) -->
@@ -88,9 +90,21 @@
             <h3 class="blockTitle">INITIAL DEPOSIT</h3>
             <div class="searchArea">
               <form id="SearchForm" name="SearchForm" action="javascript:submitKernelSearch();">
-                <input id="SearchField" type="text" required value="" size="20" pattern="[0-9a-fA-F]+" placeholder="Block height or Kernel ID of the deposit in the liquidity pool" title="Enter the Block height or the Kernel ID of a call to the DEX smart contract with method 'Liquidity Add'." autofocus>
+                <div class="searchFieldWrapper">
+                  <input id="SearchField" type="text" required value="" size="20" pattern="[0-9a-fA-F]+" placeholder="Block height or Kernel ID of the deposit" title="Enter the Block height or the Kernel ID of a call to the DEX smart contract with method 'Liquidity Add'." autofocus>
+                  <button id="FavoriteButton" type="button" onclick="toggleFavorite();" title="Add to bookmarks"><svg width='1em' height='1em'><use href='#icon_star'/></svg></button>
+                </div>
+                <button id="BookmarksButton" type="button" onclick="toggleBookmarks();" title="Bookmarks"><svg width='1.4em' height='1.4em'><use href='#icon_bookmark'/></svg></button>
                 <button id="SearchButton" type="submit" title="Search kernel">&#x1F50E;&#xFE0E;</button>
               </form>
+              <div id="BookmarksContainer" class="bookmarksContainer hidden">
+                <div class="bookmarksHeader">
+                  <span>BOOKMARKS</span>
+                </div>
+                <div id="BookmarksList" class="bookmarksList">
+                  <!-- Bookmark items will be added here -->
+                </div>
+              </div>
             </div>
             <div class="listOfValues">
               <table class="blockTable">

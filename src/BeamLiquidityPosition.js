@@ -449,8 +449,10 @@ function updateDisplay() {
 // Launch a kernel search request
 function submitKernelSearch() {
   // Get search string
-  g.kernel = document.getElementById('SearchField').value;
+  g.originalSearch = document.getElementById('SearchField').value.trim();
+  g.kernel = g.originalSearch;
   if (g.kernel) {
+    updateURL(g.kernel);
     // Determine if it's a blockheight (1-9 digits) or a kernel ID
     let isHeight = /^\d{1,9}$/.test(g.kernel);
     let queryParam = isHeight ? '&height=' : '&kernel=';
@@ -472,6 +474,7 @@ function parseKernelSearch() {
   // Remark: The explorer node often returns the treasury when no block is found (and only the Treasury lacks the 'info' field)
   if (jData['found'] === false || jData['info'] === undefined) {
     alert('Block not found. Please use the Beam Explorer to check the Kernel ID or Block height.');
+    updateURL(null);
     return;
   }
 
@@ -504,10 +507,12 @@ function parseKernelSearch() {
     } else {
       alert('No valid "Liquidity Add" transaction found in this block.');
     }
+    updateURL(null);
     return;
   }
   if (validKernels.length > 1) {
     alert('Multiple valid DEX transactions found in this block. Please search using the specific Kernel ID instead.');
+    updateURL(null);
     return;
   }
 
@@ -519,6 +524,9 @@ function parseKernelSearch() {
   resetAll();
   g.kernel = kData.id;
   updateDisplay();
+
+  // Update favorite button state
+  updateStarState();
 
   // Get values of initial deposit, and convert them to numbers.
   // Remark: JS might see the values as numbers or strings (depending on their having commas and spaces or not),
@@ -642,6 +650,15 @@ function parseAssetsQuery() {
 
   // Update values in HTML
   updateDisplay();
+
+  // Update favorite info if current kernel is a favorite
+  const favIndex = favorites.findIndex(f => f.kernel === g.kernel);
+  if (favIndex !== -1) {
+    favorites[favIndex].aid1 = g.AID1Name;
+    favorites[favIndex].aid2 = g.AID2Name;
+    favorites[favIndex].initialHeight = g.initialHeight;
+    localStorage.setItem('beam_lp_favorites', JSON.stringify(favorites));
+  }
 }
 
 // Launch a request on current pool
@@ -858,4 +875,134 @@ updateDisplay();
 document.addEventListener("DOMContentLoaded", () => {
   initNodeSelector();
   setInterval(checkNodeStatus, 30000); // Periodic check every 30 seconds
+  
+  // Listen to search field changes to update the star icon
+  const searchField = document.getElementById('SearchField');
+  if (searchField) {
+    searchField.addEventListener('input', updateStarState);
+    searchField.addEventListener('change', updateStarState);
+  }
+  
+  updateBookmarksDisplay();
+  checkURL();
+});
+
+// *** BOOKMARKS ***
+
+let favorites = JSON.parse(localStorage.getItem('beam_lp_favorites') || '[]');
+
+function updateStarState() {
+  const searchField = document.getElementById('SearchField');
+  if (!searchField) return;
+  const input = searchField.value.trim();
+  // Check if input matches either the saved original search OR the kernel ID
+  const isFav = favorites.some(f => f.kernel === input || f.originalSearch === input);
+  const favBtn = document.getElementById('FavoriteButton');
+  if (favBtn) {
+    favBtn.classList.toggle('active', isFav);
+  }
+}
+
+function updateURL(search) {
+  const url = new URL(window.location);
+  if (search) {
+    url.searchParams.set('search', search);
+  } else {
+    url.searchParams.delete('search');
+  }
+  window.history.pushState({}, '', url);
+}
+
+function checkURL() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const search = urlParams.get('search');
+  if (search) {
+    document.getElementById('SearchField').value = search;
+    submitKernelSearch();
+  }
+}
+
+function toggleFavorite() {
+  if (!g.kernel) return;
+  const index = favorites.findIndex(f => f.kernel === g.kernel);
+  if (index === -1) {
+    favorites.push({
+      kernel: g.kernel,
+      originalSearch: g.originalSearch || g.kernel,
+      initialHeight: g.initialHeight,
+      aid1: g.AID1Name || 'Asset-A',
+      aid2: g.AID2Name || 'Asset-B'
+    });
+    document.getElementById('FavoriteButton').classList.add('active');
+  } else {
+    favorites.splice(index, 1);
+    document.getElementById('FavoriteButton').classList.remove('active');
+  }
+  localStorage.setItem('beam_lp_favorites', JSON.stringify(favorites));
+  updateBookmarksDisplay();
+}
+
+function toggleBookmarks() {
+  const container = document.getElementById('BookmarksContainer');
+  container.classList.toggle('hidden');
+  if (!container.classList.contains('hidden')) {
+    updateBookmarksDisplay();
+  }
+}
+
+function updateBookmarksDisplay() {
+  const list = document.getElementById('BookmarksList');
+  if (!list) return;
+  list.innerHTML = '';
+  
+  if (favorites.length > 0) {
+    favorites.forEach(fav => {
+      // Use originalSearch for display if available, otherwise kernel ID
+      const displaySearch = fav.originalSearch || fav.kernel;
+      const item = createBookmarkItem(displaySearch, `${fav.aid1} / ${fav.aid2}`, `Block: ${fav.initialHeight}`);
+      list.appendChild(item);
+    });
+  } else {
+    list.innerHTML = '<div class="bookmarkMessage">No bookmarks yet</div>';
+  }
+}
+
+function createBookmarkItem(search, title, sub) {
+  const div = document.createElement('div');
+  div.className = 'bookmarksItem';
+  div.onclick = () => {
+    document.getElementById('SearchField').value = search;
+    submitKernelSearch();
+    document.getElementById('BookmarksContainer').classList.add('hidden');
+  };
+  
+  div.innerHTML = `
+    <div class="bookmarksItemInfo">
+      <span class="bookmarksItemTitle">${title}</span>
+      <span class="bookmarksItemSub">${sub}</span>
+    </div>
+    <button class="bookmarksItemDelete" onclick="event.stopPropagation(); removeFavorite('${search}')">&times;</button>
+  `;
+  return div;
+}
+
+function removeFavorite(search) {
+  // Remove if either kernel ID or original search matches
+  favorites = favorites.filter(f => f.kernel !== search && f.originalSearch !== search);
+  localStorage.setItem('beam_lp_favorites', JSON.stringify(favorites));
+  const currentInput = document.getElementById('SearchField').value.trim();
+  if (currentInput === search) document.getElementById('FavoriteButton').classList.remove('active');
+  updateBookmarksDisplay();
+}
+
+// Close bookmarks when clicking outside
+document.addEventListener('click', (e) => {
+  const container = document.getElementById('BookmarksContainer');
+  const btn = document.getElementById('BookmarksButton');
+  if (container && !container.classList.contains('hidden')) {
+    // If click is outside container AND outside button
+    if (!container.contains(e.target) && !btn.contains(e.target)) {
+      container.classList.add('hidden');
+    }
+  }
 });

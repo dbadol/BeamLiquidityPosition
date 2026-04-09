@@ -89,6 +89,10 @@ html, body {
   --color-search-border-filled: var(--color-light-blue);
   --color-search-background-filled: var(--color-opacity-1);
   --color-search-text-invalid: #ff8686;
+  --color-search-favorite-off: var(--color-text-dimer);
+  --color-search-favorite-hover: var(--color-text-dim);
+  --color-search-favorite-on: #ffcc00;
+  --color-search-button-background: var(--color-blue);
   --color-search-button-text: var(--color-white);
   --color-scroll-button: #2b618d;
   --color-scroll-text: white;
@@ -262,7 +266,7 @@ body {
   font-size: 1.4rem;
 }
 #AddNodeBtn:hover {
-  filter: drop-shadow(0 0 10px var(--color-shadow));
+  filter: saturate(2) drop-shadow(0 0 10px var(--color-shadow));
 }
 .delete-node {
   background: none;
@@ -364,10 +368,17 @@ body {
 /* SEARCH FIELD */
 .searchArea {
   margin-bottom: 15px;
+  position: relative; /* Ensure absolute children are positioned correctly */
 }
 #SearchForm {
   display: flex;
   gap: 8px;
+  position: relative;
+}
+.searchFieldWrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
 }
 #SearchField {
   flex: 1;
@@ -377,7 +388,7 @@ body {
   font-family: 'RobotoMono', ui-monospace, monospace; /* Switch to monospace font */
   font-size: 1.2rem;
   color: var(--color-search-text);
-  padding: 10px;
+  padding: 10px 40px 10px 10px; /* Extra right padding for the star */
 }
 #SearchField:focus {
   outline: none; /* Avoid the browser default focus outline */
@@ -401,18 +412,128 @@ body {
   color: var(--color-search-placeholder);
   text-decoration: none;
 }
-#SearchButton {
-  border: none;
-  border-radius: 5px; /* Slightly round corners */
-  background: var(--color-blue);
-  color: var(--color-search-button-text);
-  padding: 6px 12px;
+#FavoriteButton { /* The favorite button is placed over the end of the search field */
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none !important;
+  border: none !important;
+  padding: 5px !important;
+  z-index: 2;
+}
+#FavoriteButton svg {
+  fill: var(--color-search-favorite-off);
+  transition: fill 0.2s;
+  opacity: 0.6;
+}
+#FavoriteButton:hover svg {
+  fill: var(--color-search-favorite-hover);
+  opacity: 1;
+}
+#FavoriteButton.active svg {
+  fill: var(--color-search-favorite-on);
+  filter: drop-shadow(0 0 2px var(--color-shadow));
+  opacity: 1;
+}
+#BookmarksButton, #SearchButton {
+  border: 1px solid var(--color-search-border);
+  border-radius: 5px;
   cursor: pointer;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+#BookmarksButton {
+  background: var(--color-search-background);
+}
+#BookmarksButton svg {
+  fill: var(--color-text-dim);
+}
+#BookmarksButton:hover svg {
+  fill: var(--color-text);
+}
+#SearchButton {
+  background: var(--color-search-button-background);
+  color: var(--color-search-button-text);
   font-size: 1.4rem;
 }
 #SearchButton:hover {
-  cursor: pointer; /* Mouse pointer on hover */
-  filter: drop-shadow(0 0 10px var(--color-shadow));
+  filter: saturate(2) drop-shadow(0 0 10px var(--color-shadow));
+}
+.bookmarksContainer {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  background: var(--color-wallet-background);
+  border: 1px solid var(--color-search-border);
+  border-radius: 5px;
+  z-index: 1000; /* Higher z-index */
+  box-shadow: 0 4px 12px var(--color-shadow);
+  max-height: 300px;
+  overflow-y: auto;
+}
+.bookmarksHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-search-border);
+  font-size: 1.1rem;
+  color: var(--color-text-dim);
+}
+.bookmarksList {
+  display: flex;
+  flex-direction: column;
+}
+.bookmarksItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-opacity-05);
+  transition: background 0.2s;
+}
+.bookmarksItem:hover {
+  background: var(--color-opacity-05);
+}
+.bookmarksItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bookmarksItemTitle {
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+.bookmarksItemSub {
+  font-size: 1.1rem;
+  color: var(--color-text-dim);
+  font-family: 'RobotoMono', ui-monospace, monospace;
+}
+.bookmarksItemDelete {
+  background: none;
+  border: none;
+  color: var(--color-text-dimer);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 5px;
+}
+.bookmarksItemDelete:hover {
+  color: var(--color-node-off);
+}
+.bookmarkMessage {
+  padding: 20px;
+  text-align: center;
+  color: var(--color-text-dimer);
+  font-size: 1.3rem;
+}
+.hidden {
+  display: none;
 }
 /* FORMAT TABLES */
 table, td, th {
