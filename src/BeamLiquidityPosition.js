@@ -957,9 +957,9 @@ function updateBookmarksDisplay() {
   
   if (favorites.length > 0) {
     favorites.forEach(fav => {
-      // Use originalSearch for display if available, otherwise kernel ID
-      const displaySearch = fav.originalSearch || fav.kernel;
-      const item = createBookmarkItem(displaySearch, `${fav.aid1} / ${fav.aid2}`, `Block: ${fav.initialHeight}`);
+      const title = `${fav.aid1} / ${fav.aid2}`;
+      const sub = `Block: ${fav.initialHeight}<br>Kernel: ${fav.kernel.substring(0, 12)}...${fav.kernel.substring(fav.kernel.length - 12)}`;
+      const item = createBookmarkItem(fav.originalSearch || fav.kernel, title, sub, fav.kernel);
       list.appendChild(item);
     });
   } else {
@@ -967,7 +967,7 @@ function updateBookmarksDisplay() {
   }
 }
 
-function createBookmarkItem(search, title, sub) {
+function createBookmarkItem(search, title, sub, kernel) {
   const div = document.createElement('div');
   div.className = 'bookmarksItem';
   div.onclick = () => {
@@ -981,17 +981,15 @@ function createBookmarkItem(search, title, sub) {
       <span class="bookmarksItemTitle">${title}</span>
       <span class="bookmarksItemSub">${sub}</span>
     </div>
-    <button class="bookmarksItemDelete" onclick="event.stopPropagation(); removeFavorite('${search}')">&times;</button>
+    <button class="bookmarksItemDelete" onclick="event.stopPropagation(); removeFavorite('${kernel}')">&times;</button>
   `;
   return div;
 }
 
-function removeFavorite(search) {
-  // Remove if either kernel ID or original search matches
-  favorites = favorites.filter(f => f.kernel !== search && f.originalSearch !== search);
+function removeFavorite(kernel) {
+  favorites = favorites.filter(f => f.kernel !== kernel);
   localStorage.setItem('beam_lp_favorites', JSON.stringify(favorites));
-  const currentInput = document.getElementById('SearchField').value.trim();
-  if (currentInput === search) document.getElementById('FavoriteButton').classList.remove('active');
+  updateStarState();
   updateBookmarksDisplay();
 }
 

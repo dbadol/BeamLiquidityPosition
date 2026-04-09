@@ -514,6 +514,7 @@ body {
   font-size: 1.1rem;
   color: var(--color-text-dim);
   font-family: 'RobotoMono', ui-monospace, monospace;
+  line-height: 1.4;
 }
 .bookmarksItemDelete {
   background: none;
