@@ -18,7 +18,7 @@ const formatAmount = new Intl.NumberFormat('en-US', {
   //maximumSignificantDigits: 21, // This is the max for JS
   useGrouping: true,
   signDisplay: 'auto', // Display sign for negative numbers only.
-  trailingZeroDisplay: 'auto' // Follows minimumFractionDigits (not compatible with Chrome 83)
+  //trailingZeroDisplay: 'auto' // Follows minimumFractionDigits (not compatible with Chrome 83)
 });
 
 // Number formatter for exact amounts (no limit on fraction digits)
@@ -32,7 +32,7 @@ const formatExact = new Intl.NumberFormat('en-US', {
   //maximumSignificantDigits: 21, // This is the max for JS
   useGrouping: true,
   signDisplay: 'auto', // Display sign for negative numbers only.
-  trailingZeroDisplay: 'auto' // Follows minimumFractionDigits (not compatible with Chrome 83)
+  //trailingZeroDisplay: 'auto' // Follows minimumFractionDigits (not compatible with Chrome 83)
 });
 
 // Number formatter for percentage
