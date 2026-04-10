@@ -275,7 +275,7 @@
                   <td><span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span></td>
                 </tr>
                 <tr class="separator">
-                  <td><span class="rowLabel">2. If all Hodl in <span data-aid1name>Asset-1</span> <span class="infoIcon" title="Scenario 2: Current worth if all the coins had been kept as Asset-A instead of put in the Liquidity Pool."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
+                  <td><span class="rowLabel">2. If Hodl all in <span data-aid1name>Asset-1</span> <span class="infoIcon" title="Scenario 2: Current worth if all the coins had been kept as Asset-A instead of put in the Liquidity Pool."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
                   <td><span class="rowValue" data-hypoa1value>-</span></td>
                   <td><span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span></td>
                 </tr>
@@ -285,7 +285,7 @@
                   <td><span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span></td>
                 </tr>
                 <tr class="separator">
-                  <td><span class="rowLabel">3. If all Hodl in <span data-aid2name>Asset-2</span> <span class="infoIcon" title="Scenario 3: Current worth if all the coins had been kept as Asset-B instead of put in the Liquidity Pool."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
+                  <td><span class="rowLabel">3. If Hodl all in <span data-aid2name>Asset-2</span> <span class="infoIcon" title="Scenario 3: Current worth if all the coins had been kept as Asset-B instead of put in the Liquidity Pool."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
                   <td><span class="rowValue" data-hypoa2value>-</span></td>
                   <td><span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span></td>
                 </tr>
@@ -298,9 +298,36 @@
             </div>
           </div>
 
-        </div>
+          <div id="AnalyticsBlock" class="blockUnit">
+            <div class="blockHeader">
+              <h3 class="blockTitle">ANALYTICS <span id="analytics-swap" class="swapIcon"><a href="javascript:invertAnalytics();" title="Swap units"><svg width='1em' height='1em'><use href='#icon_swap'/></svg></a></span></h3>
+              <div class="tabs">
+                <button id="tab-il" class="tab-btn active" onclick="switchTab('tab-il')" title="Current position on the Impermanent Loss curve">IL Curve</button>
+                <button id="tab-2" class="tab-btn" onclick="switchTab('tab-2')" title="To be defined">Tab 2</button>
+                <button id="tab-3" class="tab-btn" onclick="switchTab('tab-3')" title="To be defined">Tab 3</button>
+              </div>
+            </div>
+            <div id="tab-il-content" class="tab-content">
+              <div id="il-chart-container" class="chart-container">
+                <svg id="il-chart" width="100%" height="180" viewBox="0 0 400 180" preserveAspectRatio="none">
+                  <!-- Chart elements will be injected here -->
+                </svg>
+              </div>
+              <div class="chart-legend">
+                <span class="legend-item" title="Change in principal liquidity value (IL) vs change of price since initial deposit"><span class="legend-line il-line"></span> IL Curve</span>
+                <span id="legend-without-fees" class="legend-item"><span class="legend-dot current-dot"></span> Position without fees</span>
+                <span id="legend-with-fees" class="legend-item"><span class="legend-dot total-dot"></span> Position with fees</span>
+              </div>
+            </div>
+            <div id="tab-2-content" class="tab-content">
+              <div class="tab-placeholder">Coming soon...</div>
+            </div>
+            <div id="tab-3-content" class="tab-content">
+              <div class="tab-placeholder">Coming soon...</div>
+            </div>
+          </div>
 
-        <div id="AboutBlock">
+          <div id="AboutBlock">
           <details class="collapsible">
             <summary class="collapsible-label"><h3 class="aboutTitle">ABOUT</h3></summary>
             <div class="collapsible-content">

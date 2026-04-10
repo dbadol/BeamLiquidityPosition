@@ -17,8 +17,8 @@ const formatAmount = new Intl.NumberFormat('en-US', {
   //minimumSignificantDigits: 1, // This is the min and default for JS
   //maximumSignificantDigits: 21, // This is the max for JS
   useGrouping: true,
-  signDisplay: 'auto', // Display sign for negative numbers only.
-  //trailingZeroDisplay: 'auto' // Follows minimumFractionDigits (not compatible with Chrome 83)
+  //trailingZeroDisplay: 'auto', // Follows minimumFractionDigits (not compatible with Chrome 83)
+  signDisplay: 'auto' // Display sign for negative numbers only.
 });
 
 // Number formatter for exact amounts (no limit on fraction digits)
@@ -31,8 +31,8 @@ const formatExact = new Intl.NumberFormat('en-US', {
   //minimumSignificantDigits: 1, // This is the min and default for JS
   //maximumSignificantDigits: 21, // This is the max for JS
   useGrouping: true,
-  signDisplay: 'auto', // Display sign for negative numbers only.
-  //trailingZeroDisplay: 'auto' // Follows minimumFractionDigits (not compatible with Chrome 83)
+  //trailingZeroDisplay: 'auto', // Follows minimumFractionDigits (not compatible with Chrome 83)
+  signDisplay: 'auto' // Display sign for negative numbers only.
 });
 
 // Number formatter for percentage
@@ -45,8 +45,8 @@ const formatPercent = new Intl.NumberFormat('en-US', {
   //minimumSignificantDigits: 1, // This is the min and default for JS
   //maximumSignificantDigits: 21, // This is the max for JS
   useGrouping: false,
-  signDisplay: 'auto', // Display sign for negative numbers only.
-  //trailingZeroDisplay: 'stripIfInteger' // Remove the fraction digits if they are all zero (not compatible with Chrome 83)
+  //trailingZeroDisplay: 'stripIfInteger' ,// Remove the fraction digits if they are all zero (not compatible with Chrome 83)
+  signDisplay: 'auto' // Display sign for negative numbers only.
 });
 
 // Format a duration as a human-readable string (because Intl.DurationFormat is not available in Chrome 83!)
@@ -143,6 +143,8 @@ const g = {
   hypoA2Diff: undefined, // Difference of current with the all-in-Asset-2 scenario
   AIDHypo: undefined, // ID of the Asset used to compute Hypotheticals
   AIDHypoName: undefined, // Name of the Asset used to compute Hypotheticals
+  AIDAnalytics: undefined, // ID of the Asset used as unit for Analytics
+  AIDAnalyticsName: undefined, // Name of the Asset used as unit for Analytics
 }
 // Default text to display when the variable is 'undefined'
 const defaultValue = {
@@ -198,6 +200,8 @@ const defaultValue = {
   hypoA2Diff: '-',
   AIDHypo: '-',
   AIDHypoName: 'Asset-A',
+  AIDAnalytics: '-',
+  AIDAnalyticsName: 'Asset-A',
 }
 // Special display formats of certain variables
 const displayFormat = {
@@ -444,6 +448,9 @@ function updateDisplay() {
     const sign = (typeof value === 'number') ? (value >= 0) : '';
     document.querySelectorAll(`[data-${item.toLowerCase()}]`).forEach(e => e.setAttribute('data-profit-sign', sign));
   });
+  // Update active tab and redraw charts
+  const activeTabId = document.querySelector('.tab-btn.active')?.id;
+  switchTab(activeTabId);
 }
 
 // Launch a kernel search request
@@ -809,25 +816,34 @@ function computeHypo() {
   g.hypoA2Diff = g.hypoCurrentValue - g.hypoA2Value;
 }
 
-// Switch the unit used for computing PnL
+// Switch the unit of PnL
 function invertPnL() {
   // Switch the unit used to compute PnL
   g.AIDPnLName = (g.AIDPnL == g.AID1) ? g.AID2Name : g.AID1Name;
   g.AIDPnL = (g.AIDPnL == g.AID1) ? g.AID2 : g.AID1;
   // Recompute PnL
   computePnL();
-  // Update values in HTML
+  // Update values and graphs in HTML
   updateDisplay();
 }
 
-// Switch the unit used for computing Hypotheticals
+// Switch the unit of Hypotheticals
 function invertHypo() {
   // Switch the unit used to compute Hypotheticals
   g.AIDHypoName = (g.AIDHypo == g.AID1) ? g.AID2Name : g.AID1Name;
   g.AIDHypo = (g.AIDHypo == g.AID1) ? g.AID2 : g.AID1;
   // Recompute Hypotheticals
   computeHypo();
-  // Update values in HTML
+  // Update values and graphs in HTML
+  updateDisplay();
+}
+
+// Switch the unit of Analytics
+function invertAnalytics() {
+  // Switch the unit used to compute Analytics
+  g.AIDAnalyticsName = (g.AIDAnalytics == g.AID1) ? g.AID2Name : g.AID1Name;
+  g.AIDAnalytics = (g.AIDAnalytics == g.AID1) ? g.AID2 : g.AID1;
+  // Update values and graphs in HTML
   updateDisplay();
 }
 
@@ -1004,3 +1020,160 @@ document.addEventListener('click', (e) => {
     }
   }
 });
+
+// *** ANALYTICS ***
+
+function switchTab(tabId) {
+  const activeTab = document.getElementById(tabId);
+  if (!activeTab) { return; }
+  const activeContent = document.getElementById(tabId + '-content');
+  const container = activeTab.closest('.blockUnit');
+  // Hide all tabs
+  container.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  container.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+  // Display active tab
+  activeTab.classList.add('active');
+  activeContent.style.display = 'block';
+  
+  // Show/hide swap icon based on tab
+  const swapIcon = document.getElementById('analytics-swap');
+  if (swapIcon) {
+    swapIcon.style.visibility = (tabId === 'tab-il') ? 'visible' : 'hidden';
+  }
+
+  // Refresh tab content
+  if (tabId === 'tab-il') { drawILChart(); }
+  else if (tabId === 'tab-2') { }
+  else if (tabId === 'tab-3') { }
+}
+
+function drawILChart() {
+  const svg = document.getElementById('il-chart');
+  if (!svg || !g.initialAID1Amount || !g.initialAID2Amount || !g.poolAID1Amount || !g.poolAID2Amount) return;
+
+  // Initialize analytics unit if not done yet
+  if (g.AIDAnalytics === undefined) {
+    g.AIDAnalytics = g.AID1;
+    g.AIDAnalyticsName = g.AID1Name;
+  }
+
+  // Graph size
+  const width = 400;
+  const height = 180;
+  const padding = 30; // Padding for labels
+  const chartWidth = width - padding * 2;
+  const chartHeight = height - padding * 2;
+
+  // Compute price ratio (= current price / initial price)
+  let r, assetOfName, inAssetName;
+  if (g.AIDAnalytics === g.AID1) { // Price of Asset 2 in Asset 1
+    const initialPrice = g.initialAID1Amount / g.initialAID2Amount;
+    const currentPrice = g.poolAID1Amount / g.poolAID2Amount;
+    r = currentPrice / initialPrice;
+    assetOfName = g.AID2Name;
+    inAssetName = g.AID1Name;
+  } else { // Price of Asset 1 in Asset 2
+    const initialPrice = g.initialAID2Amount / g.initialAID1Amount;
+    const currentPrice = g.poolAID2Amount / g.poolAID1Amount;
+    r = currentPrice / initialPrice;
+    assetOfName = g.AID1Name;
+    inAssetName = g.AID2Name;
+  }
+
+  // Determine X axis range (max is x5 or x10)
+  const maxRatio = (r > 5) ? 10 : 5;
+  const minRatio = 0;
+
+  // Compensated IL (= Principal + Fees)
+  // Net Result = (Total Current Value / Hodl Value) - 1
+  const netResult = (g.hypoCurrentValue / g.hypoHodlValue) - 1;
+
+  // Vertical scale: from -100% to 0% (or +20% if netResult is positive)
+  const minVal = -1.0;
+  const maxVal = (netResult > 0) ? 0.2 : 0.0;
+  const range = maxVal - minVal;
+
+  // Limit Y values to display range
+  const getY = (val) => {
+    const clamped = Math.max(minVal, Math.min(maxVal, val));
+    return padding + ((maxVal - clamped) / range) * chartHeight;
+  };
+
+  // IL formula: IL = 2 * sqrt(ratio) / (1 + ratio) - 1
+  let points = "";
+  const steps = 100;
+  for (let i = 0; i <= steps; i++) {
+    // Compute coordinates
+    const ratio = minRatio + (maxRatio - minRatio) * (i / steps);
+    const il = (ratio <= 0) ? -1 : (2 * Math.sqrt(ratio) / (1 + ratio)) - 1;
+    const x = padding + (i / steps) * chartWidth;
+    const y = getY(il);
+    // Add point to curve
+    points += `${x},${y} `;
+  }
+
+  // Current Position (Principal IL)
+  const currentIL = (2 * Math.sqrt(r) / (1 + r)) - 1;
+  const displayRatio = Math.min(maxRatio, r);
+  const dotX = padding + ((displayRatio - minRatio) / (maxRatio - minRatio)) * chartWidth;
+  const dotY = getY(currentIL);
+
+  // Compensated IL (Principal + Fees)
+  // Net Result = (Total Current Value / Hodl Value) - 1
+  const netDotY = getY(netResult);
+
+  // Prepare Grid Lines
+  let gridLines = "";
+  // Horizontal grid lines (-100%, -75%, -50% ...)
+  const hGridValues = (maxVal > 0) ? [0.2, 0, -0.25, -0.5, -0.75, -1.0] : [0, -0.25, -0.5, -0.75, -1.0];
+  hGridValues.forEach(val => {
+    const y = getY(val);
+    gridLines += `<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" class="chart-grid" />`;
+    const label = (val > 0 ? "+" : "") + (val * 100) + "%";
+    gridLines += `<text x="${padding - 5}" y="${y + 3}" class="chart-label" text-anchor="end">${label}</text>`;
+  });
+  // Vertical grid lines (x1, x2, x3, x4, x5 ...)
+  for (let i = 1; i < maxRatio; i++) {
+    const x = padding + ((i - minRatio) / (maxRatio - minRatio)) * chartWidth;
+    gridLines += `<line x1="${x}" y1="${padding}" x2="${x}" y2="${height - padding}" class="chart-grid" />`;
+    // Labels on top horizontal line
+    gridLines += `<text x="${x}" y="${padding - 8}" class="chart-label" text-anchor="middle">x${i}</text>`;
+  }
+
+  // Build SVG graph
+  svg.innerHTML = `
+    <!-- Grid and Labels -->
+    ${gridLines}
+    <!-- Axes -->
+    <line x1="${padding}" y1="${padding}" x2="${width - padding}" y2="${padding}" class="chart-axis" />
+    <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" class="chart-axis" />
+    <!-- Axis Labels -->
+    <text x="${padding}" y="${padding - 8}" class="chart-label" text-anchor="middle">x0</text>
+    <text x="${width - padding}" y="${padding - 8}" class="chart-label" text-anchor="middle">x${maxRatio}</text>
+    <!-- Axis Titles -->
+    <text x="${padding}" y="${height - padding + 15}" class="chart-label" text-anchor="start" style="font-weight: bold;">IL</text>
+    <text x="${width - padding}" y="${padding - 18}" class="chart-label" text-anchor="end" style="font-weight: bold;">price change of ${assetOfName} in ${inAssetName}</text>
+    <!-- Curve -->
+    <polyline points="${points}" class="chart-line" />
+    <!-- Connector Line -->
+    <line x1="${dotX}" y1="${dotY}" x2="${dotX}" y2="${netDotY}" class="chart-connector" />
+    <!-- Total Position Dot (with fees): Larger, and drawn first to be behind -->
+    <circle cx="${dotX}" cy="${netDotY}" r="6" class="chart-dot-total" style="cursor: pointer;">
+      <title>Position with fees\nPrice: x${r.toFixed(2)}\nNet Result: ${(netResult * 100).toFixed(2)}%</title>
+    </circle>
+    <!-- Principal Position Dot (without fees): Smaller, and drawn last to be on top -->
+    <circle cx="${dotX}" cy="${dotY}" r="4" class="chart-dot" style="cursor: pointer;">
+      <title>Position without fees\nPrice: x${r.toFixed(2)}\nIL: ${(currentIL * 100).toFixed(2)}%</title>
+    </circle>
+  `;
+
+  // Update legend tooltips
+  const legendWithoutFees = document.getElementById('legend-without-fees');
+  if (legendWithoutFees) {
+    legendWithoutFees.title = `Price: x${r.toFixed(2)}\nIL: ${(currentIL * 100).toFixed(2)}%`;
+  }
+  const legendWithFees = document.getElementById('legend-with-fees');
+  if (legendWithFees) {
+    legendWithFees.title = `Price: x${r.toFixed(2)}\nNet Result: ${(netResult * 100).toFixed(2)}%`;
+  }
+}
