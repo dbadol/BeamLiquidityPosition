@@ -239,11 +239,11 @@ body {
 .add-custom-area {
   padding: 10px 16px;
   display: flex;
-  gap: 8px;
   border-bottom: none;
 }
 #CustomNodeInput {
   flex: 1;
+  margin-right: 8px;
   background: var(--color-darkest-blue);
   border: 1px solid var(--color-opacity-05);
   font-family: 'RobotoMono', ui-monospace, monospace;
@@ -372,13 +372,13 @@ body {
 }
 #SearchForm {
   display: flex;
-  gap: 8px;
   position: relative;
 }
 .searchFieldWrapper {
   flex: 1;
   position: relative;
   display: flex;
+  margin-right: 8px;
 }
 #SearchField {
   flex: 1;
@@ -448,6 +448,7 @@ body {
 }
 #BookmarksButton {
   background: var(--color-search-background);
+  margin-right: 8px;
 }
 #BookmarksButton svg {
   fill: var(--color-text-dim);
@@ -504,11 +505,11 @@ body {
 .bookmarksItemInfo {
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
 .bookmarksItemTitle {
   font-weight: bold;
   font-size: 1.3rem;
+  margin-bottom: 4px;
 }
 .bookmarksItemSub {
   font-size: 1.1rem;
