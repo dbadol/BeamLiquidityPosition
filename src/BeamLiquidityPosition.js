@@ -1034,6 +1034,12 @@ document.addEventListener('click', (e) => {
 // *** ANALYTICS ***
 
 function switchTab(tabId) {
+  // Initialize analytics unit if not done yet
+  if (g.AIDAnalytics === undefined && g.AID1 !== undefined) {
+    g.AIDAnalytics = g.AID1;
+    g.AIDAnalyticsName = g.AID1Name;
+  }
+
   const activeTab = document.getElementById(tabId);
   if (!activeTab) { return; }
   const activeContent = document.getElementById(tabId + '-content');
@@ -1048,24 +1054,18 @@ function switchTab(tabId) {
   // Show/hide swap icon based on tab
   const swapIcon = document.getElementById('analytics-swap');
   if (swapIcon) {
-    swapIcon.style.visibility = (tabId === 'tab-il') ? 'visible' : 'hidden';
+    swapIcon.style.visibility = (tabId === 'tab-il' || tabId === 'tab-scenarios') ? 'visible' : 'hidden';
   }
 
   // Refresh tab content
   if (tabId === 'tab-il') { drawILChart(); }
-  else if (tabId === 'tab-2') { }
+  else if (tabId === 'tab-scenarios') { drawScenariosChart(); }
   else if (tabId === 'tab-3') { }
 }
 
 function drawILChart() {
   const svg = document.getElementById('il-chart');
-  if (!svg || !g.initialAID1Amount || !g.initialAID2Amount || !g.poolAID1Amount || !g.poolAID2Amount) return;
-
-  // Initialize analytics unit if not done yet
-  if (g.AIDAnalytics === undefined) {
-    g.AIDAnalytics = g.AID1;
-    g.AIDAnalyticsName = g.AID1Name;
-  }
+  if (!svg || !g.initialAID1Amount || !g.initialAID2Amount || !g.poolAID1Amount || !g.poolAID2Amount) { return; }
 
   // Graph size
   const width = 400;
@@ -1132,7 +1132,7 @@ function drawILChart() {
   // Net Result = (Total Current Value / Hodl Value) - 1
   const netDotY = getY(netResult);
 
-  // Prepare Grid Lines
+  // Prepare grid lines
   let gridLines = "";
   // Horizontal grid lines (-100%, -75%, -50% ...)
   const hGridValues = (maxVal > 0) ? [0.2, 0, -0.25, -0.5, -0.75, -1.0] : [0, -0.25, -0.5, -0.75, -1.0];
@@ -1161,29 +1161,136 @@ function drawILChart() {
     <text x="${padding}" y="${padding - 8}" class="chart-label" text-anchor="middle">x0</text>
     <text x="${width - padding}" y="${padding - 8}" class="chart-label" text-anchor="middle">x${maxRatio}</text>
     <!-- Axis Titles -->
-    <text x="${padding}" y="${height - padding + 15}" class="chart-label" text-anchor="start" style="font-weight: bold;">IL</text>
-    <text x="${width - padding}" y="${padding - 18}" class="chart-label" text-anchor="end" style="font-weight: bold;">price change of ${assetOfName} in ${inAssetName}</text>
+    <text x="${padding}" y="${height - padding + 15}" class="chart-label chart-label-bold" text-anchor="start">IL</text>
+    <text x="${width - padding}" y="${padding - 18}" class="chart-label chart-label-bold" text-anchor="end">price change of ${assetOfName} in ${inAssetName}</text>
     <!-- Curve -->
     <polyline points="${points}" class="chart-line" />
     <!-- Connector Line -->
     <line x1="${dotX}" y1="${dotY}" x2="${dotX}" y2="${netDotY}" class="chart-connector" />
     <!-- Total Position Dot (with fees): Larger, and drawn first to be behind -->
-    <circle cx="${dotX}" cy="${netDotY}" r="6" class="chart-dot-total" style="cursor: pointer;">
-      <title>Position with fees\nPrice: x${r.toFixed(2)}\nNet Result: ${(netResult * 100).toFixed(2)}%</title>
+    <circle cx="${dotX}" cy="${netDotY}" r="6" class="chart-dot-total">
+      <title>Position with fees\nPrice change: x${r.toFixed(2)}\nNet Result: ${(netResult * 100).toFixed(2)}%</title>
     </circle>
     <!-- Principal Position Dot (without fees): Smaller, and drawn last to be on top -->
-    <circle cx="${dotX}" cy="${dotY}" r="4" class="chart-dot" style="cursor: pointer;">
-      <title>Position without fees\nPrice: x${r.toFixed(2)}\nIL: ${(currentIL * 100).toFixed(2)}%</title>
+    <circle cx="${dotX}" cy="${dotY}" r="4" class="chart-dot">
+      <title>Position without fees\nPrice change: x${r.toFixed(2)}\nIL: ${(currentIL * 100).toFixed(2)}%</title>
     </circle>
   `;
 
   // Update legend tooltips
   const legendWithoutFees = document.getElementById('legend-without-fees');
   if (legendWithoutFees) {
-    legendWithoutFees.title = `Price: x${r.toFixed(2)}\nIL: ${(currentIL * 100).toFixed(2)}%`;
+    legendWithoutFees.title = `Price change: x${r.toFixed(2)}\nIL: ${(currentIL * 100).toFixed(2)}%`;
   }
   const legendWithFees = document.getElementById('legend-with-fees');
   if (legendWithFees) {
-    legendWithFees.title = `Price: x${r.toFixed(2)}\nNet Result: ${(netResult * 100).toFixed(2)}%`;
+    legendWithFees.title = `Price change: x${r.toFixed(2)}\nNet Result: ${(netResult * 100).toFixed(2)}%`;
   }
+}
+
+function drawScenariosChart() {
+  const svg = document.getElementById('scenarios-chart');
+  if (!svg || !g.initialAID1Amount || !g.initialAID2Amount || !g.poolAID1Amount || !g.poolAID2Amount) { return; }
+
+  // Graph size
+  const width = 400;
+  const height = 180;
+  const paddingT = 30; // Top padding for labels
+  const paddingB = 30; // Bottom padding for labels
+  const paddingL = 20;
+  const paddingR = 20;
+  const chartWidth = width - paddingL - paddingR;
+  const chartHeight = height - paddingT - paddingB;
+
+  // Compute values in the defined unit for this block
+  // Remark: Liquidity pairs are always balanced, so total value is simply the double of any one
+  let initial, current, hodl, a1, a2, principal, fees;
+  if (g.AIDAnalytics === g.AID1) {
+    initial = 2 * g.initialAID1Amount;
+    current = 2 * g.AID1Total;
+    principal = 2 * g.AID1Principal;
+    fees = 2 * g.AID1Fees;
+    hodl = g.initialAID1Amount + (g.initialAID2Amount * g.poolAID1Amount / g.poolAID2Amount);
+    a1 = 2 * g.initialAID1Amount;
+    a2 = (2 * g.initialAID2Amount) * (g.poolAID1Amount / g.poolAID2Amount);
+  } else {
+    initial = 2 * g.initialAID2Amount;
+    current = 2 * g.AID2Total;
+    principal = 2 * g.AID2Principal;
+    fees = 2 * g.AID2Fees;
+    hodl = (g.initialAID1Amount * g.poolAID2Amount / g.poolAID1Amount) + g.initialAID2Amount;
+    a1 = (2 * g.initialAID1Amount) * (g.poolAID2Amount / g.poolAID1Amount);
+    a2 = 2 * g.initialAID2Amount;
+  }
+
+  // Define chart content
+  const scenarios = [
+    { label: 'Initial', value: initial, class: 'bar-initial' },
+    { label: 'Current', value: current, class: 'bar-current' },
+    { label: 'HODL', value: hodl, class: 'bar-hypo' },
+    { label: 'All in ' + g.AID1Name, value: a1, class: 'bar-hypo' },
+    { label: 'All in ' + g.AID2Name, value: a2, class: 'bar-hypo' }
+  ];
+
+  // Find max value for scaling
+  const maxValue = Math.max(...scenarios.map(s => s.value));
+  const scale = chartHeight / maxValue;
+
+  // Define all the SVG elements
+  let bars = '', labels = '', values = '', defs = '';
+  const barWidth = 40;
+  const spacing = (chartWidth - (barWidth * scenarios.length)) / (scenarios.length - 1);
+  // Vertical bars
+  scenarios.forEach((s, i) => {
+    const x = paddingL + i * (barWidth + spacing);
+    const barHeight = s.value * scale;
+    const y = height - paddingB - barHeight;
+    const percent = ((s.value / initial) * 100).toFixed(1) + '%';
+    const displayValue = displayFormat.totalCurrentValue.format(s.value);
+    // Define each bar
+    if (s.label === 'Current') {
+      const principalPct = ((principal / current) * 100).toFixed(1);
+      const feesPct = ((fees / current) * 100).toFixed(1);
+      const feesHeight = fees * scale;
+      const midY = y + (barHeight + feesHeight) / 2;
+      defs += `
+        <clipPath id="current-bar-clip">
+          <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="3" />
+        </clipPath>
+      `;
+      bars += `
+        <g>
+          <title>${principalPct}% principal + ${feesPct}% fees</title>
+          <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" class="${s.class}" rx="3" />
+          <rect x="${x}" y="${y}" width="${barWidth}" height="${feesHeight}" class="bar-fees" clip-path="url(#current-bar-clip)" />
+          <line x1="${x}" y1="${midY}" x2="${x + barWidth}" y2="${midY}" class="bar-split-line" />
+        </g>
+      `;
+    } else {
+      bars += `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" class="${s.class}" rx="3" />`;
+      if (s.label === 'Initial' || s.label === 'HODL') { // The split line is also displayed on the Initial and HODL bars
+        const midY = y + barHeight / 2;
+        bars += `<line x1="${x}" y1="${midY}" x2="${x + barWidth}" y2="${midY}" class="bar-split-line" />`;
+      }
+    }
+    // Label below
+    labels += `<text x="${x + barWidth / 2}" y="${height - 10}" class="chart-label chart-label-medium" text-anchor="middle">${s.label}</text>`;
+    // Value and % above
+    values += `
+      <text x="${x + barWidth / 2}" y="${y - 15}" class="chart-label chart-label-bold chart-label-medium" text-anchor="middle">${displayValue}</text>
+      <text x="${x + barWidth / 2}" y="${y - 5}" class="chart-label chart-label-dim chart-label-small" text-anchor="middle">${percent}</text>
+    `;
+  });
+  // Reference line for the current value
+  const currentY = height - paddingB - (current * scale);
+  const refLine = `<line x1="${paddingL}" y1="${currentY}" x2="${width - paddingR}" y2="${currentY}" class="chart-ref-line" />`;
+
+  // Assemble the SVG
+  svg.innerHTML = `
+    <defs>${defs}</defs>
+    ${refLine}
+    ${bars}
+    ${labels}
+    ${values}
+  `;
 }

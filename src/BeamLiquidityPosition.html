@@ -304,7 +304,7 @@
               <h3 class="blockTitle">ANALYTICS <span id="analytics-swap" class="swapIcon"><a href="javascript:invertAnalytics();" title="Swap units"><svg width='1em' height='1em'><use href='#icon_swap'/></svg></a></span></h3>
               <div class="tabs">
                 <button id="tab-il" class="tab-btn active" onclick="switchTab('tab-il')" title="Current position on the Impermanent Loss curve">IL Curve</button>
-                <button id="tab-2" class="tab-btn" onclick="switchTab('tab-2')" title="To be defined">Tab 2</button>
+                <button id="tab-scenarios" class="tab-btn" onclick="switchTab('tab-scenarios')" title="Comparison of initial deposit, current position and hypothetical scenarios">Scenarios</button>
                 <button id="tab-3" class="tab-btn" onclick="switchTab('tab-3')" title="To be defined">Tab 3</button>
               </div>
             </div>
@@ -320,8 +320,13 @@
                 <span id="legend-with-fees" class="legend-item"><span class="legend-dot total-dot"></span> Position with fees</span>
               </div>
             </div>
-            <div id="tab-2-content" class="tab-content">
-              <div class="tab-placeholder">Coming soon...</div>
+            <div id="tab-scenarios-content" class="tab-content">
+              <div id="scenarios-chart-container" class="chart-container">
+                <svg id="scenarios-chart" width="100%" height="180" viewBox="0 0 400 180" preserveAspectRatio="none">
+                  <!-- Chart elements will be injected here -->
+                </svg>
+              </div>
+              <div class="chart-unit-note">Values in <span data-aidanalyticsname>-</span></div>
             </div>
             <div id="tab-3-content" class="tab-content">
               <div class="tab-placeholder">Coming soon...</div>

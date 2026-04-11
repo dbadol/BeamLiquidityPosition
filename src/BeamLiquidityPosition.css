@@ -587,6 +587,12 @@ body {
   font-style: italic;
   font-size: 1.2rem;
 }
+.chart-unit-note {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--color-text-dimer);
+  margin-top: 5px;
+}
 /* CHART STYLES */
 .chart-container {
   background: var(--color-shadow-light);
@@ -620,11 +626,13 @@ body {
   fill: var(--color-yellow);
   stroke: var(--color-black);
   stroke-width: 1;
+  cursor: pointer;
 }
 .chart-dot-total {
   fill: var(--color-light-blue);
   stroke: var(--color-black);
   stroke-width: 1;
+  cursor: pointer;
 }
 .chart-connector {
   stroke: var(--color-opacity-5);
@@ -635,6 +643,39 @@ body {
   fill: var(--color-text-dim);
   font-size: 10px;
   font-family: 'RobotoMono', monospace;
+}
+.chart-label-bold {
+  font-weight: bold;
+}
+.chart-label-dim {
+  fill: var(--color-text-dimer);
+}
+.chart-label-small {
+  font-size: 0.8rem;
+}
+.chart-label-medium {
+  font-size: 0.9rem;
+}
+.chart-ref-line {
+  stroke: var(--color-text-dimer);
+  stroke-dasharray: 4;
+  stroke-width: 1;
+}
+.bar-initial {
+  fill: var(--color-violet);
+}
+.bar-current {
+  fill: var(--color-light-blue);
+}
+.bar-hypo {
+  fill: var(--color-gray);
+}
+.bar-fees {
+  fill: var(--color-blue);
+}
+.bar-split-line {
+  stroke: var(--color-shadow-light);
+  stroke-width: 1;
 }
 .chart-legend {
   display: flex;
