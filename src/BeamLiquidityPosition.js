@@ -111,6 +111,8 @@ const g = {
   initialPrice: undefined, // Initial price of asset 2 (vs asset 1)
   priceName1: undefined, // Primary price asset name
   priceName2: undefined, // Secondary price asset name
+  priceAID1: undefined, // Primary price asset id
+  priceAID2: undefined, // Secondary price asset id
   poolAID1Amount: undefined, // Current total amount of Asset 1 in the pool
   poolAID2Amount: undefined, // Current total amount of Asset 2 in the pool
   poolAMMLAmount: undefined, // Current total amount of AMML tokens minted for the pool
@@ -241,6 +243,12 @@ const displayFormat = {
 }
 
 // *** FUNCTIONS ***
+
+// Truncate asset name to 8 characters + ellipsis if longer
+function truncateAssetName(name) {
+  if (typeof name !== 'string') return name;
+  return (name.length > 8) ? name.substring(0, 8) + '…' : name;
+}
 
 // Reset all global variables
 function resetAll() {
@@ -583,15 +591,18 @@ function parseKernelSearch() {
 // Compute prices according to current unit
 function computePrices() {
   // Define default price units (price is given as a value of 'priceName1 per priceName2')
-  if (g.priceName1 === undefined) { g.priceName1 = g.AID1Name; g.priceName2 = g.AID2Name; }
+  if (g.priceAID1 === undefined) { 
+    g.priceAID1 = g.AID1; g.priceName1 = g.AID1Name; 
+    g.priceAID2 = g.AID2; g.priceName2 = g.AID2Name; 
+  }
   // Compute prices
-  if (g.priceName1 == g.AID1Name) {
+  if (g.priceAID1 == g.AID1) {
     // Compute initial price
     g.initialPrice = g.initialAID1Amount / g.initialAID2Amount;
     // Compute pool price (if the pool info is already available)
     if (g.poolAID1Amount !== undefined) { g.poolPrice = g.poolAID1Amount / g.poolAID2Amount; }
   }
-  if (g.priceName1 == g.AID2Name) {
+  if (g.priceAID1 == g.AID2) {
     // Compute initial price
     g.initialPrice = g.initialAID2Amount / g.initialAID1Amount;
     // Compute pool price (if the pool info is already available)
@@ -603,9 +614,11 @@ function computePrices() {
 function invertPrices() {
   // Only do something if a pool has already been defined
   if (!g.AMML) { return; };
-  // Switch the units used to compute prices
-  g.priceName1 = (g.priceName1 == g.AID1Name) ? g.AID2Name : g.AID1Name;
-  g.priceName2 = (g.priceName2 == g.AID2Name) ? g.AID1Name : g.AID2Name;
+  // Switch the asset (id and name) used as unit to compute prices
+  [g.priceAID1, g.priceAID2, g.priceName1, g.priceName2] =
+    (g.priceAID1 == g.AID1) ? 
+    [g.AID2, g.AID1, g.AID2Name, g.AID1Name] : 
+    [g.AID1, g.AID2, g.AID1Name, g.AID2Name];
   // Recompute prices
   computePrices();
   // Update values in HTML
@@ -625,7 +638,7 @@ function submitAssetsQuery() {
 // Process the Assets names answer
 function parseAssetsQuery() {
   // Remember current unit used for prices
-  let priceID = (g.priceName1 == g.AID1Name) ? 1 : 2 ;
+  let priceID = (g.priceAID1 == g.AID1) ? 1 : 2 ;
   // Define default asset names ("Asset-xx", or "BEAM" for id 0)
   g.AID1Name = (g.AID1 == 0) ? 'BEAM' : 'Asset-' + g.AID1;
   g.AID2Name = (g.AID2 == 0) ? 'BEAM' : 'Asset-' + g.AID2;
@@ -646,8 +659,8 @@ function parseAssetsQuery() {
         // Extract asset short name (with a regexp)
         let name = metadata.replace(/.*;UN=([^;]*).*/,'$1');
         // Save idenfied name
-        if (aid == g.AID1) { g.AID1Name = name; }
-        if (aid == g.AID2) { g.AID2Name = name; }
+        if (aid == g.AID1) { g.AID1Name = truncateAssetName(name); }
+        if (aid == g.AID2) { g.AID2Name = truncateAssetName(name); }
       }
     }
   }
@@ -818,9 +831,8 @@ function computeHypo() {
 
 // Switch the unit of PnL
 function invertPnL() {
-  // Switch the unit used to compute PnL
-  g.AIDPnLName = (g.AIDPnL == g.AID1) ? g.AID2Name : g.AID1Name;
-  g.AIDPnL = (g.AIDPnL == g.AID1) ? g.AID2 : g.AID1;
+  // Switch the asset (id and name) used as unit to compute PnL
+  [g.AIDPnL, g.AIDPnLName] = (g.AIDPnL == g.AID1) ? [g.AID2, g.AID2Name] : [g.AID1, g.AID1Name];
   // Recompute PnL
   computePnL();
   // Update values and graphs in HTML
@@ -829,9 +841,8 @@ function invertPnL() {
 
 // Switch the unit of Hypotheticals
 function invertHypo() {
-  // Switch the unit used to compute Hypotheticals
-  g.AIDHypoName = (g.AIDHypo == g.AID1) ? g.AID2Name : g.AID1Name;
-  g.AIDHypo = (g.AIDHypo == g.AID1) ? g.AID2 : g.AID1;
+  // Switch the asset (id and name) used as unit to compute Hypotheticals
+  [g.AIDHypo, g.AIDHypoName] = (g.AIDHypo == g.AID1) ? [g.AID2, g.AID2Name] : [g.AID1, g.AID1Name];
   // Recompute Hypotheticals
   computeHypo();
   // Update values and graphs in HTML
@@ -840,9 +851,8 @@ function invertHypo() {
 
 // Switch the unit of Analytics
 function invertAnalytics() {
-  // Switch the unit used to compute Analytics
-  g.AIDAnalyticsName = (g.AIDAnalytics == g.AID1) ? g.AID2Name : g.AID1Name;
-  g.AIDAnalytics = (g.AIDAnalytics == g.AID1) ? g.AID2 : g.AID1;
+  // Switch the asset (id and name) used as unit to compute Analytics
+  [g.AIDAnalytics, g.AIDAnalyticsName] = (g.AIDAnalytics == g.AID1) ? [g.AID2, g.AID2Name] : [g.AID1, g.AID1Name];
   // Update values and graphs in HTML
   updateDisplay();
 }
