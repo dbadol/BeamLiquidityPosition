@@ -459,7 +459,8 @@ body {
 }
 #SearchButton {
   background: var(--color-search-button-background);
-  color: var(--color-search-button-text);
+  fill: var(--color-search-button-text);
+  stroke: var(--color-search-button-text);
   font-size: 1.4rem;
 }
 #SearchButton:hover {
