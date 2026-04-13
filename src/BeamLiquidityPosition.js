@@ -1093,8 +1093,12 @@ function drawILChart() {
   // Net Result = (Total Current Value / Hodl Value) - 1
   const netResult = (g.hypoCurrentValue / g.hypoHodlValue) - 1;
 
-  // Vertical scale: from -100% to 0% (or +20% if netResult is positive)
-  const minVal = -1.0;
+  // Current Position (Principal IL)
+  const currentIL = (2 * Math.sqrt(r) / (1 + r)) - 1;
+
+  // Vertical scale: from -50% to 0% (or +20% if netResult is positive)
+  // Go down to -100% only if currentIL is below -50%
+  const minVal = (currentIL < -0.5) ? -1.0 : -0.5;
   const maxVal = (netResult > 0) ? 0.2 : 0.0;
   const range = maxVal - minVal;
 
@@ -1117,8 +1121,6 @@ function drawILChart() {
     points += `${x},${y} `;
   }
 
-  // Current Position (Principal IL)
-  const currentIL = (2 * Math.sqrt(r) / (1 + r)) - 1;
   const displayRatio = Math.min(maxRatio, r);
   const dotX = padding + ((displayRatio - minRatio) / (maxRatio - minRatio)) * chartWidth;
   const dotY = getY(currentIL);
@@ -1132,6 +1134,7 @@ function drawILChart() {
   // Horizontal grid lines (-100%, -75%, -50% ...)
   const hGridValues = (maxVal > 0) ? [0.2, 0, -0.25, -0.5, -0.75, -1.0] : [0, -0.25, -0.5, -0.75, -1.0];
   hGridValues.forEach(val => {
+    if (val < minVal) return;
     const y = getY(val);
     gridLines += `<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" class="chart-grid" />`;
     const label = (val > 0 ? "+" : "") + (val * 100) + "%";
