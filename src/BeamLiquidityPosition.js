@@ -254,6 +254,7 @@ function truncateAssetName(name) {
 function resetAll() {
   // Reset values of all global variables to 'undefined'
   for (let i in g) { g[i] = undefined; }
+  resetSimulator();
 }
 
 // Manage Node Selector
@@ -1050,17 +1051,11 @@ function switchTab(tabId) {
   // Display active tab
   activeTab.classList.add('active');
   activeContent.style.display = 'block';
-  
-  // Show/hide swap icon based on tab
-  const swapIcon = document.getElementById('analytics-swap');
-  if (swapIcon) {
-    swapIcon.style.visibility = (tabId === 'tab-il' || tabId === 'tab-scenarios') ? 'visible' : 'hidden';
-  }
 
   // Refresh tab content
   if (tabId === 'tab-il') { drawILChart(); }
   else if (tabId === 'tab-scenarios') { drawScenariosChart(); }
-  else if (tabId === 'tab-3') { }
+  else if (tabId === 'tab-simulator') { drawSimulatorChart(); }
 }
 
 function drawILChart() {
@@ -1162,7 +1157,7 @@ function drawILChart() {
     <text x="${width - padding}" y="${padding - 8}" class="chart-label" text-anchor="middle">x${maxRatio}</text>
     <!-- Axis Titles -->
     <text x="${padding}" y="${height - padding + 15}" class="chart-label chart-label-bold" text-anchor="start">IL</text>
-    <text x="${width - padding}" y="${padding - 18}" class="chart-label chart-label-bold" text-anchor="end">price change of ${assetOfName} in ${inAssetName}</text>
+    <text x="${width - padding}" y="${padding - 18}" class="chart-label chart-label-bold" text-anchor="end">Price change of ${assetOfName} in ${inAssetName}</text>
     <!-- Curve -->
     <polyline points="${points}" class="chart-line" />
     <!-- Connector Line -->
@@ -1195,7 +1190,7 @@ function drawScenariosChart() {
   // Graph size
   const width = 400;
   const height = 180;
-  const paddingT = 30; // Top padding for labels
+  const paddingT = 20; // Top padding for labels
   const paddingB = 30; // Bottom padding for labels
   const paddingL = 20;
   const paddingR = 20;
@@ -1293,4 +1288,273 @@ function drawScenariosChart() {
     ${labels}
     ${values}
   `;
+}
+
+function drawSimulatorChart() {
+  const svg = document.getElementById('simulator-chart');
+  if (!svg || !g.initialAID1Amount || !g.initialAID2Amount || !g.poolAID1Amount || !g.poolAID2Amount) { return; }
+
+  // Graph size
+  const width = 400;
+  const height = 180;
+  const paddingT = 20;
+  const paddingB = 40;
+  const paddingL = 40;
+  const paddingR = 20;
+  const chartWidth = width - paddingL - paddingR;
+  const chartHeight = height - paddingT - paddingB;
+
+  // Get simulator inputs
+  const durationMonths = Number(document.getElementById('simulator-duration').value);
+  const usageVal = Number(document.getElementById('simulator-fees').value);
+  // Replace step 0 of the usage slider with 0.5
+  const usageMultiplier = (usageVal === 0) ? 0.5 : usageVal;
+
+  // Compute values in the defined unit for this block
+  let currentTotal, initialTotal, currentPrincipal, currentFees, initialA1, initialA2, pInit, pCurr;
+  if (g.AIDAnalytics === g.AID1) {
+    currentTotal = 2 * g.AID1Total;
+    initialTotal = 2 * g.initialAID1Amount;
+    currentPrincipal = 2 * g.AID1Principal;
+    currentFees = 2 * g.AID1Fees;
+    initialA1 = g.initialAID1Amount;
+    initialA2 = g.initialAID2Amount;
+    pInit = g.initialAID1Amount / g.initialAID2Amount;
+    pCurr = g.poolAID1Amount / g.poolAID2Amount;
+  } else {
+    currentTotal = 2 * g.AID2Total;
+    initialTotal = 2 * g.initialAID2Amount;
+    currentPrincipal = 2 * g.AID2Principal;
+    currentFees = 2 * g.AID2Fees;
+    initialA1 = g.initialAID2Amount;
+    initialA2 = g.initialAID1Amount;
+    pInit = g.initialAID2Amount / g.initialAID1Amount;
+    pCurr = g.poolAID2Amount / g.poolAID1Amount;
+  }
+
+  // Average daily fee rate based on history
+  const avgDailyFees = (g.durationInMs > 0) ? currentFees / (g.durationInMs / (24 * 60 * 60 * 1000)) : 0;
+  // Expected fee for the new period
+  const projectedDays = durationMonths * 30.42;
+  const projectedFees = currentFees + (avgDailyFees * projectedDays * usageMultiplier);
+
+  // Price ratios (x-axis points)
+  const ratios = [0.2, 0.25, 0.33, 0.5, 1, 2, 3, 4, 5];
+  const labels = ['÷5', '÷4', '÷3', '÷2', 'x1', 'x2', 'x3', 'x4', 'x5'];
+
+  const pointsFuture = [];
+  const pointsPrincipal = [];
+  //const pointsHodl = [];
+
+  ratios.forEach((r, i) => {
+    const x = paddingL + (i / (ratios.length - 1)) * chartWidth;
+    const pFuture = r * pCurr;
+    // Future Position
+    const fPrincipal = currentPrincipal * Math.sqrt(r);
+    const fTotal = fPrincipal + projectedFees;
+    // Alternative scenarios
+    //const valHodl = initialA1 + initialA2 * pFuture;
+    // Add points for displayed cases
+    pointsFuture.push({x, y: (fTotal / currentTotal) - 1, principal: fPrincipal, fees: projectedFees});
+    pointsPrincipal.push({x, y: (fPrincipal / currentTotal) - 1});
+    //pointsHodl.push({x, y: (valHodl / currentTotal) - 1});
+  });
+
+  // Find Y scale
+  const allY = [...pointsFuture, ...pointsPrincipal].map(p => p.y);
+  allY.push(0); // Current line
+  const minY = Math.min(...allY) - 0.05;
+  const maxY = Math.max(...allY) + 0.05;
+
+  // Limit Y values to display range
+  const getY = (y) => height - paddingB - ((y - minY) / (maxY - minY)) * chartHeight;
+
+  // Store points and scale (to be used by the floating tooltip)
+  g.simPoints = { pointsFuture, getY };
+
+  // Build SVG
+  let content = '';
+
+  // Grid and Labels
+  const yZero = getY(0);
+  const yInitial = getY((initialTotal / currentTotal) - 1);
+
+  // Horizontal grid (percentages)
+  const rawRange = maxY - minY;
+  let step = 0.1; 
+  if (rawRange < 0.25) step = 0.05;
+  if (rawRange > 0.6) step = 0.25;
+  if (rawRange > 1.2) step = 0.5;
+  const gridValues = [0];
+  for (let v = step; v <= maxY; v += step) gridValues.push(v);
+  for (let v = -step; v >= minY; v -= step) gridValues.push(v);
+  gridValues.forEach(val => {
+    const y = getY(val);
+    content += `<line x1="${paddingL}" y1="${y}" x2="${width - paddingR}" y2="${y}" class="chart-grid" />`;
+    const label = (val > 0 ? "+" : "") + (val * 100).toFixed(0) + "%";
+    content += `<text x="${paddingL - 5}" y="${y + 3}" class="chart-label" text-anchor="end">${label}</text>`;
+  });
+
+  // Vertical grid (price ratios)
+  ratios.forEach((r, i) => {
+    const x = paddingL + (i / (ratios.length - 1)) * chartWidth;
+    const isX1 = (r === 1);
+    const gridClass = isX1 ? "chart-grid chart-grid-bold" : "chart-grid";
+    content += `<line x1="${x}" y1="${paddingT}" x2="${x}" y2="${height - paddingB}" class="${gridClass}" />`;
+    content += `<text x="${x}" y="${height - paddingB + 15}" class="chart-label" text-anchor="middle">${labels[i]}</text>`;
+  });
+
+  // Axis Labels
+  content += `<text x="${paddingL + 5}" y="${paddingT - 10}" class="chart-label chart-label-bold" text-anchor="start">Next profit in ${g.AIDAnalyticsName}</text>`;
+  content += `<text x="${width - paddingR}" y="${height - 5}" class="chart-label chart-label-bold" text-anchor="end">Price change of ${g.AIDAnalytics === g.AID1 ? g.AID2Name : g.AID1Name} in ${g.AIDAnalyticsName}</text>`;
+
+  // Areas for Future Position
+  let pathPrincipal = `M ${pointsPrincipal[0].x} ${getY(pointsPrincipal[0].y)}`;
+  let pathTotal = `M ${pointsFuture[0].x} ${getY(pointsFuture[0].y)}`;
+  for(let i=1; i<pointsPrincipal.length; i++) {
+    pathPrincipal += ` L ${pointsPrincipal[i].x} ${getY(pointsPrincipal[i].y)}`;
+    pathTotal += ` L ${pointsFuture[i].x} ${getY(pointsFuture[i].y)}`;
+  }
+  
+  // Fill Area for Principal
+  const fillPrincipal = pathPrincipal + ` L ${pointsPrincipal[pointsPrincipal.length-1].x} ${height-paddingB} L ${pointsPrincipal[0].x} ${height-paddingB} Z`;
+  content += `<path d="${fillPrincipal}" class="chart-area-principal" />`;
+  
+  // Fill Area for Fees (between Principal and Total)
+  let pathFees = pathTotal;
+  for(let i=pointsPrincipal.length-1; i>=0; i--) {
+    pathFees += ` L ${pointsPrincipal[i].x} ${getY(pointsPrincipal[i].y)}`;
+  }
+  pathFees += ' Z';
+  content += `<path d="${pathFees}" class="chart-area-fees" />`;
+
+  // Chart Lines
+  const drawLine = (pts, cls) => {
+    let d = `M ${pts[0].x} ${getY(pts[0].y)}`;
+    for(let i=1; i<pts.length; i++) d += ` L ${pts[i].x} ${getY(pts[i].y)}`;
+    return `<path d="${d}" class="${cls}" />`;
+  };
+
+  // HODL line
+  //content += drawLine(pointsHodl, 'chart-line-scenario');
+
+  // Initial and Current reference lines
+  content += `<line x1="${paddingL}" y1="${yInitial}" x2="${width - paddingR}" y2="${yInitial}" class="chart-line-initial" />`;
+  content += `<line x1="${paddingL}" y1="${yZero}" x2="${width - paddingR}" y2="${yZero}" class="chart-line-current" />`;
+  
+  // Future line
+  content += drawLine(pointsFuture, 'chart-line-future');
+
+  // Interactive Overlay (for the floating tooltip)
+  content += `<rect x="${paddingL}" y="${paddingT}" width="${chartWidth}" height="${chartHeight}" fill="transparent" onmousemove="showSimulatorTooltip(event)" onmouseleave="hideSimulatorTooltip()" />`;
+  content += `<circle id="simulator-dot" r="4" class="chart-dot-total" style="display:none" />`;
+
+  // Display the SVG
+  svg.innerHTML = content;
+
+  // Add breakeven info
+  const infoDiv = document.getElementById('simulator-info');
+  if (currentTotal < initialTotal && avgDailyFees > 0) {
+    const loss = initialTotal - currentTotal;
+    const days = Math.ceil(loss / avgDailyFees);
+    infoDiv.innerHTML = `At current price and with average fees, you will offset the IL in <span class="breakeven-highlight">${days} days</span>.`;
+  } else {
+    infoDiv.innerHTML = 'Your position is currently profitable compared to initial deposit.';
+  }
+}
+
+function updateSimulator() {
+  // Get slider elements
+  const duration = document.getElementById('simulator-duration').value;
+  const usageVal = Number(document.getElementById('simulator-fees').value);
+  // Replace step 0 of the usage slider with 0.5
+  const usage = (usageVal === 0) ? 0.5 : usageVal;
+  // Update slider values
+  document.getElementById('val-duration').innerText = duration;
+  document.getElementById('val-fees').innerText = 'x' + usage.toFixed(1);
+  // Refresh chart
+  drawSimulatorChart();
+}
+
+function showSimulatorTooltip(event) {
+  // Check the line exists
+  if(!g.simPoints) { return; }
+
+  // Get elements
+  const svg = document.getElementById('simulator-chart');
+  const dot = document.getElementById('simulator-dot');
+  if (!svg || !dot) { return; }
+
+  // Get mouse position
+  const rect = svg.getBoundingClientRect();
+  const xPos = (event.clientX - rect.left) * (400 / rect.width);
+
+  // X steps
+  const paddingL = 40;
+  const paddingR = 20;
+  const chartWidth = 400 - paddingL - paddingR;
+  const ratios = [0.2, 0.25, 0.33, 0.5, 1, 2, 3, 4, 5];
+  const labels = ['÷5', '÷4', '÷3', '÷2', 'x1', 'x2', 'x3', 'x4', 'x5'];
+
+  // Find closest step
+  let closestIdx = 0;
+  let minDist = Infinity;
+  for(let i=0; i<ratios.length; i++) {
+    const stepX = paddingL + (i / (ratios.length - 1)) * chartWidth;
+    const dist = Math.abs(xPos - stepX);
+    if (dist < minDist) {
+      minDist = dist;
+      closestIdx = i;
+    }
+  }
+
+  // Draw dot
+  const p = g.simPoints.pointsFuture[closestIdx];
+  dot.setAttribute('cx', p.x);
+  dot.setAttribute('cy', g.simPoints.getY(p.y));
+  dot.style.display = 'block';
+
+  // Tooltip content
+  const variation = (p.y > 0 ? "+" : "") + (p.y * 100).toFixed(1) + '%';
+  const pTotal = p.principal + p.fees;
+  const principalPct = (p.principal / pTotal * 100).toFixed(1);
+  const feesPct = (p.fees / pTotal * 100).toFixed(1);
+  const tooltipText = `Price change in ${g.AIDAnalyticsName}: ${labels[closestIdx]}<br/>Next profit: ${variation}<br/>(${principalPct}% principal + ${feesPct}% fees)`;
+
+  // Show tooltip
+  const tooltip = document.getElementById('tooltip');
+  if (!tooltip) { return; }
+  tooltip.innerHTML = tooltipText;
+  tooltip.style.display = 'block';
+
+  // Position tooltip near mouse but not under it (to avoid flicker)
+  const x = event.clientX + 15;
+  const y = event.clientY + 15;
+  // Keep within window bounds
+  const rectTT = tooltip.getBoundingClientRect();
+  let posX = x;
+  let posY = y;
+  if (x + rectTT.width > window.innerWidth) { posX = event.clientX - rectTT.width - 15; }
+  if (y + rectTT.height > window.innerHeight) { posY = event.clientY - rectTT.height - 15; }
+  // Adjust tooltip position
+  tooltip.style.left = posX + 'px';
+  tooltip.style.top = posY + 'px';
+}
+
+function hideSimulatorTooltip() {
+  // Hide tooltip and dot
+  const tooltip = document.getElementById('tooltip');
+  if (tooltip) { tooltip.style.display = 'none'; }
+  const dot = document.getElementById('simulator-dot');
+  if (dot) { dot.style.display = 'none'; }
+}
+
+function resetSimulator() {
+  const durationSlider = document.getElementById('simulator-duration');
+  const feesSlider = document.getElementById('simulator-fees');
+  if (durationSlider && feesSlider) {
+    durationSlider.value = 12;
+    feesSlider.value = 1;
+    updateSimulator();
+  }
 }

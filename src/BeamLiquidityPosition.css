@@ -575,17 +575,9 @@ body {
   border-bottom: 2px solid var(--color-cyan);
 }
 .tab-content {
-  padding: 10px 0;
   flex: 1;
   display: flex;
   flex-direction: column;
-}
-.tab-placeholder {
-  text-align: center;
-  padding: 40px;
-  color: var(--color-text-dimer);
-  font-style: italic;
-  font-size: 1.2rem;
 }
 .chart-unit-note {
   text-align: center;
@@ -617,6 +609,11 @@ body {
   stroke-width: 1;
   stroke-dasharray: 2,2;
 }
+.chart-grid-bold {
+  stroke: var(--color-opacity-3);
+  stroke-width: 1.5;
+  stroke-dasharray: none;
+}
 .chart-line {
   fill: none;
   stroke: var(--color-cyan);
@@ -642,9 +639,10 @@ body {
 .chart-label {
   fill: var(--color-text-dim);
   font-size: 10px;
-  font-family: 'RobotoMono', monospace;
+  font-family: 'RobotoMono', ui-monospace, monospace;
 }
 .chart-label-bold {
+  fill: var(--color-text-dim);
   font-weight: bold;
 }
 .chart-label-dim {
@@ -677,6 +675,168 @@ body {
   stroke: var(--color-shadow-light);
   stroke-width: 1;
 }
+/* Simulator Styles */
+.simulator-controls {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  padding: 10px 20px;
+  background: var(--color-opacity-05);
+  border-radius: 8px;
+  margin: 10px 0 5px 0;
+}
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+.control-group label {
+  font-size: 1.1rem;
+  color: var(--color-text-dim);
+  display: flex;
+  justify-content: space-between;
+  white-space: nowrap;
+}
+.control-group span {
+  font-family: 'RobotoMono', ui-monospace, monospace;
+  color: var(--color-light-blue);
+  font-weight: bold;
+}
+.simulator-controls input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 20px;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+}
+/* We keep browser-specific definitions separated, to avoid browsers discarding all of them */
+.simulator-controls input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 4px;
+  background: var(--color-opacity-6);
+  border-radius: 2px;
+}
+.simulator-controls input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 4px;
+  background: var(--color-opacity-6);
+  border-radius: 2px;
+}
+#simulator-duration::-webkit-slider-runnable-track { /* Trick to display a reference tick on the slider */
+  background: linear-gradient(to right, 
+    var(--color-opacity-6) 0%, 
+    var(--color-opacity-6) calc(50% - 1px), 
+    var(--color-black) calc(50% - 1px), 
+    var(--color-black) calc(50% + 1px), 
+    var(--color-opacity-6) calc(50% + 1px), 
+    var(--color-opacity-6) 100%);
+}
+#simulator-duration::-moz-range-track { /* Trick to display a reference tick on the slider */
+  background: linear-gradient(to right, 
+    var(--color-opacity-6) 0%, 
+    var(--color-opacity-6) calc(50% - 1px), 
+    var(--color-black) calc(50% - 1px), 
+    var(--color-black) calc(50% + 1px), 
+    var(--color-opacity-6) calc(50% + 1px), 
+    var(--color-opacity-6) 100%);
+}
+#simulator-fees::-webkit-slider-runnable-track { /* Trick to display a reference tick on the slider */
+  background: linear-gradient(to right, 
+    var(--color-opacity-6) 0%, 
+    var(--color-opacity-6) calc(10% - 1px), 
+    var(--color-black) calc(10% - 1px), 
+    var(--color-black) calc(10% + 1px), 
+    var(--color-opacity-6) calc(10% - 1px), 
+    var(--color-opacity-6) 100%);
+}
+#simulator-fees::-moz-range-track { /* Trick to display a reference tick on the slider */
+  background: linear-gradient(to right, 
+    var(--color-opacity-6) 0%, 
+    var(--color-opacity-6) calc(10% - 1px), 
+    var(--color-black) calc(10% - 1px), 
+    var(--color-black) calc(10% + 1px), 
+    var(--color-opacity-6) calc(10% - 1px), 
+    var(--color-opacity-6) 100%);
+}
+.simulator-controls input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--color-light-blue);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 5px var(--color-opacity-5);
+  margin-top: -6px; /* Centers thumb on 4px track */
+}
+.simulator-controls input[type=range]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--color-light-blue);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 5px var(--color-opacity-5);
+  border: none;
+}
+.simulator-info {
+  padding: 5px;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tooltip {
+  position: fixed;
+  background: var(--color-wallet-background);
+  color: var(--color-text);
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 4px 10px var(--color-shadow);
+  border: 1px solid var(--color-opacity-3);
+  line-height: 1.4;
+}
+.simulator-info .breakeven-highlight {
+  color: var(--color-green);
+  font-weight: bold;
+  padding-left: 5px;
+}
+.chart-area-principal {
+  fill: var(--color-light-blue);
+  fill-opacity: 0.2;
+}
+.chart-area-fees {
+  fill: var(--color-blue);
+  fill-opacity: 0.4;
+}
+.chart-line-future {
+  fill: none;
+  stroke: var(--color-light-blue);
+  stroke-width: 2;
+}
+.chart-line-initial {
+  stroke: var(--color-violet);
+  stroke-width: 1.5;
+  stroke-dasharray: 4,2;
+}
+.chart-line-current {
+  stroke: var(--color-light-blue);
+  stroke-width: 1.5;
+  stroke-dasharray: 4,2;
+}
+/*.chart-line-scenario {
+  fill: none;
+  stroke: var(--color-gray);
+  stroke-width: 1;
+  opacity: 0.6;
+}*/
 .chart-legend {
   display: flex;
   justify-content: center;

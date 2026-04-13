@@ -305,7 +305,7 @@
               <div class="tabs">
                 <button id="tab-il" class="tab-btn active" onclick="switchTab('tab-il')" title="Current position on the Impermanent Loss curve">IL Curve</button>
                 <button id="tab-scenarios" class="tab-btn" onclick="switchTab('tab-scenarios')" title="Comparison of initial deposit, current position and hypothetical scenarios">Scenarios</button>
-                <button id="tab-3" class="tab-btn" onclick="switchTab('tab-3')" title="To be defined">Tab 3</button>
+                <button id="tab-simulator" class="tab-btn" onclick="switchTab('tab-simulator')" title="Simulation of future positions based on price variation">Simulator</button>
               </div>
             </div>
             <div id="tab-il-content" class="tab-content">
@@ -328,8 +328,23 @@
               </div>
               <div class="chart-unit-note">Values in <span data-aidanalyticsname>-</span></div>
             </div>
-            <div id="tab-3-content" class="tab-content">
-              <div class="tab-placeholder">Coming soon...</div>
+            <div id="tab-simulator-content" class="tab-content">
+              <div id="simulator-chart-container" class="chart-container">
+                <svg id="simulator-chart" width="100%" height="180" viewBox="0 0 400 180" preserveAspectRatio="none">
+                  <!-- Chart elements will be injected here -->
+                </svg>
+              </div>
+              <div class="simulator-controls">
+                <div class="control-group">
+                  <label for="simulator-duration">Next duration: <span><span id="val-duration">12</span> months</span></label>
+                  <input type="range" id="simulator-duration" min="0" max="24" step="1" value="12" oninput="updateSimulator()" onclick="this.blur()">
+                </div>
+                <div class="control-group">
+                  <label for="simulator-fees">Change in fees: <span id="val-fees">x1.0</span></label>
+                  <input type="range" id="simulator-fees" min="0" max="10" step="1" value="1" oninput="updateSimulator()" onclick="this.blur()">
+                </div>
+              </div>
+              <div id="simulator-info" class="simulator-info"></div>
             </div>
           </div>
 
@@ -351,6 +366,9 @@
 
     <!-- Fixed footer on all pages -->
     <div id='Footer'><a href='https://www.beam.mw' target='_blank'>beam.mw</a></div>
+
+    <!-- Floating graph tooltip -->
+    <div id="tooltip" class="tooltip" style="display:none"></div>
 
     <!-- No JavaScript warning -->
     <noscript>You need to enable JavaScript to run this app.</noscript>
