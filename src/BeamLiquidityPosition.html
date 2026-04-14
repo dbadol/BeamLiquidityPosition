@@ -266,7 +266,7 @@
                   <td><span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span></td>
                 </tr>
                 <tr class="separator">
-                  <td><span class="rowLabel">1. Worth if Hodl <span class="infoIcon" title="Scenario 1: Current worth if the two coins had been kept and NOT deposited in the Liquidity Pool."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
+                  <td><span class="rowLabel">1. If Hodl the pair<span class="infoIcon" title="Scenario 1: Current worth if the two coins had been kept and NOT deposited in the Liquidity Pool."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
                   <td><span class="rowValue" data-hypohodlvalue>-</span></td>
                   <td><span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span></td>
                 </tr>
@@ -305,7 +305,7 @@
               <div class="tabs">
                 <button id="tab-il" class="tab-btn active" onclick="switchTab('tab-il')" title="Current position on the Impermanent Loss curve">IL Curve</button>
                 <button id="tab-scenarios" class="tab-btn" onclick="switchTab('tab-scenarios')" title="Comparison of initial deposit, current position and hypothetical scenarios">Scenarios</button>
-                <button id="tab-simulator" class="tab-btn" onclick="switchTab('tab-simulator')" title="Simulation of future positions based on price variation">Simulator</button>
+                <button id="tab-simulator" class="tab-btn" onclick="switchTab('tab-simulator')" title="Possible evolution of the current position">Simulator</button>
               </div>
             </div>
             <div id="tab-il-content" class="tab-content">
@@ -315,7 +315,7 @@
                 </svg>
               </div>
               <div class="chart-legend">
-                <span class="legend-item" title="Change in principal liquidity value (IL) vs change of price since initial deposit"><span class="legend-line il-line"></span> IL Curve</span>
+                <span class="legend-item" title="Change of principal value (IL) vs change of price since initial deposit"><span class="legend-line il-line"></span> IL Curve</span>
                 <span id="legend-without-fees" class="legend-item"><span class="legend-dot current-dot"></span> Position without fees</span>
                 <span id="legend-with-fees" class="legend-item"><span class="legend-dot total-dot"></span> Position with fees</span>
               </div>

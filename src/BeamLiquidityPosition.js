@@ -1129,6 +1129,22 @@ function drawILChart() {
   // Net Result = (Total Current Value / Hodl Value) - 1
   const netDotY = getY(netResult);
 
+  // Compute absolute values for tooltips
+  let currentValue, principalValue;
+  if (g.AIDAnalytics === g.AID1) {
+    currentValue = 2 * g.AID1Total;
+    principalValue = 2 * g.AID1Principal;
+  } else {
+    currentValue = 2 * g.AID2Total;
+    principalValue = 2 * g.AID2Principal;
+  }
+  const formattedCurrent = displayFormat.totalCurrentValue.format(currentValue) + ' ' + g.AIDAnalyticsName;
+  const formattedPrincipal = displayFormat.totalCurrentValue.format(principalValue) + ' ' + g.AIDAnalyticsName;
+  
+  // Get absolute price
+  const currentPriceVal = (g.AIDAnalytics === g.AID1) ? (g.poolAID1Amount / g.poolAID2Amount) : (g.poolAID2Amount / g.poolAID1Amount);
+  const formattedPrice = displayFormat.poolPrice.format(currentPriceVal) + ' ' + inAssetName + '/' + assetOfName;
+
   // Prepare grid lines
   let gridLines = "";
   // Horizontal grid lines (-100%, -75%, -50% ...)
@@ -1167,22 +1183,22 @@ function drawILChart() {
     <line x1="${dotX}" y1="${dotY}" x2="${dotX}" y2="${netDotY}" class="chart-connector" />
     <!-- Total Position Dot (with fees): Larger, and drawn first to be behind -->
     <circle cx="${dotX}" cy="${netDotY}" r="6" class="chart-dot-total">
-      <title>Position with fees\nPrice change: x${r.toFixed(2)}\nNet Result: ${(netResult * 100).toFixed(2)}%</title>
+      <title>Price change: x${r.toFixed(2)}\n${formattedPrice}\n\nPosition with fees:\n${formattedCurrent}\n\nNet result: ${(netResult * 100).toFixed(2)}% of Hodl</title>
     </circle>
     <!-- Principal Position Dot (without fees): Smaller, and drawn last to be on top -->
     <circle cx="${dotX}" cy="${dotY}" r="4" class="chart-dot">
-      <title>Position without fees\nPrice change: x${r.toFixed(2)}\nIL: ${(currentIL * 100).toFixed(2)}%</title>
+      <title>Price change: x${r.toFixed(2)}\n${formattedPrice}\n\nPosition without fees:\n${formattedPrincipal}\n\nIL: ${(currentIL * 100).toFixed(2)}% of Hodl</title>
     </circle>
   `;
 
   // Update legend tooltips
   const legendWithoutFees = document.getElementById('legend-without-fees');
   if (legendWithoutFees) {
-    legendWithoutFees.title = `Price change: x${r.toFixed(2)}\nIL: ${(currentIL * 100).toFixed(2)}%`;
+    legendWithoutFees.title = `Price change: x${r.toFixed(2)}\nIL: ${(currentIL * 100).toFixed(2)}% of Hodl`;
   }
   const legendWithFees = document.getElementById('legend-with-fees');
   if (legendWithFees) {
-    legendWithFees.title = `Price change: x${r.toFixed(2)}\nNet Result: ${(netResult * 100).toFixed(2)}%`;
+    legendWithFees.title = `Price change: x${r.toFixed(2)}\nNet result: ${(netResult * 100).toFixed(2)}% of Hodl`;
   }
 }
 
@@ -1225,9 +1241,9 @@ function drawScenariosChart() {
   const scenarios = [
     { label: 'Initial', value: initial, class: 'bar-initial' },
     { label: 'Current', value: current, class: 'bar-current' },
-    { label: 'HODL', value: hodl, class: 'bar-hypo' },
-    { label: 'All in ' + g.AID1Name, value: a1, class: 'bar-hypo' },
-    { label: 'All in ' + g.AID2Name, value: a2, class: 'bar-hypo' }
+    { label: '1.HODL', value: hodl, class: 'bar-hypo' },
+    { label: '2.All ' + g.AID1Name, value: a1, class: 'bar-hypo' },
+    { label: '3.All ' + g.AID2Name, value: a2, class: 'bar-hypo' }
   ];
 
   // Find max value for scaling
@@ -1266,7 +1282,7 @@ function drawScenariosChart() {
       `;
     } else {
       bars += `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" class="${s.class}" rx="3" />`;
-      if (s.label === 'Initial' || s.label === 'HODL') { // The split line is also displayed on the Initial and HODL bars
+      if (s.label === 'Initial' || s.label === '1.HODL') { // The split line is also displayed on the Initial and HODL bars
         const midY = y + barHeight / 2;
         bars += `<line x1="${x}" y1="${midY}" x2="${x + barWidth}" y2="${midY}" class="bar-split-line" />`;
       }
@@ -1353,7 +1369,7 @@ function drawSimulatorChart() {
     const x = paddingL + (i / (ratios.length - 1)) * chartWidth;
     const pFuture = r * pCurr;
     // Future Position
-    const fPrincipal = currentPrincipal * Math.sqrt(r);
+    const fPrincipal = currentPrincipal * Math.sqrt(r); // A bit of x*y=k math here
     const fTotal = fPrincipal + projectedFees;
     // Alternative scenarios
     //const valHodl = initialA1 + initialA2 * pFuture;
@@ -1460,7 +1476,7 @@ function drawSimulatorChart() {
   if (currentTotal < initialTotal && avgDailyFees > 0) {
     const loss = initialTotal - currentTotal;
     const days = Math.ceil(loss / avgDailyFees);
-    infoDiv.innerHTML = `At current price and with average fees, you will offset the IL in <span class="breakeven-highlight">${days} days</span>.`;
+    infoDiv.innerHTML = `With current price and average fees, you will offset the IL in <span class="breakeven-highlight">${days} days</span>.`;
   } else {
     infoDiv.innerHTML = 'Your position is currently profitable compared to initial deposit.';
   }
