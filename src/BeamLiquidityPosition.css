@@ -803,6 +803,27 @@ body {
   border: 1px solid var(--color-opacity-3);
   line-height: 1.4;
 }
+.tooltip-title {
+  font-weight: bold;
+  color: var(--color-text-bright);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+}
+.tooltip-row {
+  margin: 2px 0;
+}
+.tooltip-row-dim {
+  color: var(--color-text-dimer);
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+.tooltip-divider {
+  height: 1px;
+  background: var(--color-opacity-2);
+  margin: 6px 0;
+}
 .simulator-info .breakeven-highlight {
   color: var(--color-green);
   font-weight: bold;

@@ -147,6 +147,7 @@ const g = {
   AIDHypoName: undefined, // Name of the Asset used to compute Hypotheticals
   AIDAnalytics: undefined, // ID of the Asset used as unit for Analytics
   AIDAnalyticsName: undefined, // Name of the Asset used as unit for Analytics
+  ilTooltipData: {}, // Data for IL chart tooltips
 }
 // Default text to display when the variable is 'undefined'
 const defaultValue = {
@@ -1145,6 +1146,16 @@ function drawILChart() {
   const currentPriceVal = (g.AIDAnalytics === g.AID1) ? (g.poolAID1Amount / g.poolAID2Amount) : (g.poolAID2Amount / g.poolAID1Amount);
   const formattedPrice = displayFormat.poolPrice.format(currentPriceVal) + ' ' + inAssetName + '/' + assetOfName;
 
+  // Store data for tooltips
+  g.ilTooltipData = {
+    r,
+    formattedPrice,
+    formattedCurrent,
+    netResult,
+    currentIL,
+    formattedPrincipal
+  };
+
   // Prepare grid lines
   let gridLines = "";
   // Horizontal grid lines (-100%, -75%, -50% ...)
@@ -1182,23 +1193,25 @@ function drawILChart() {
     <!-- Connector Line -->
     <line x1="${dotX}" y1="${dotY}" x2="${dotX}" y2="${netDotY}" class="chart-connector" />
     <!-- Total Position Dot (with fees): Larger, and drawn first to be behind -->
-    <circle cx="${dotX}" cy="${netDotY}" r="6" class="chart-dot-total">
-      <title>Price change: x${r.toFixed(2)}\n${formattedPrice}\n\nPosition with fees:\n${formattedCurrent}\n\nNet result: ${(netResult * 100).toFixed(2)}% of Hodl</title>
+    <circle cx="${dotX}" cy="${netDotY}" r="6" class="chart-dot-total" 
+      onmousemove="showILTooltip(event, true)" onmouseleave="hideCustomTooltip()">
     </circle>
     <!-- Principal Position Dot (without fees): Smaller, and drawn last to be on top -->
-    <circle cx="${dotX}" cy="${dotY}" r="4" class="chart-dot">
-      <title>Price change: x${r.toFixed(2)}\n${formattedPrice}\n\nPosition without fees:\n${formattedPrincipal}\n\nIL: ${(currentIL * 100).toFixed(2)}% of Hodl</title>
+    <circle cx="${dotX}" cy="${dotY}" r="4" class="chart-dot"
+      onmousemove="showILTooltip(event, false)" onmouseleave="hideCustomTooltip()">
     </circle>
   `;
 
   // Update legend tooltips
   const legendWithoutFees = document.getElementById('legend-without-fees');
   if (legendWithoutFees) {
-    legendWithoutFees.title = `Price change: x${r.toFixed(2)}\nIL: ${(currentIL * 100).toFixed(2)}% of Hodl`;
+    legendWithoutFees.onmousemove = (e) => showILTooltip(e, false);
+    legendWithoutFees.onmouseleave = hideCustomTooltip;
   }
   const legendWithFees = document.getElementById('legend-with-fees');
   if (legendWithFees) {
-    legendWithFees.title = `Price change: x${r.toFixed(2)}\nNet result: ${(netResult * 100).toFixed(2)}% of Hodl`;
+    legendWithFees.onmousemove = (e) => showILTooltip(e, true);
+    legendWithFees.onmouseleave = hideCustomTooltip;
   }
 }
 
@@ -1466,7 +1479,7 @@ function drawSimulatorChart() {
 
   // Interactive Overlay (for the floating tooltip)
   content += `<rect x="${paddingL}" y="${paddingT}" width="${chartWidth}" height="${chartHeight}" fill="transparent" onmousemove="showSimulatorTooltip(event)" onmouseleave="hideSimulatorTooltip()" />`;
-  content += `<circle id="simulator-dot" r="4" class="chart-dot-total" style="display:none" />`;
+  content += `<circle id="simulator-dot" r="5" class="chart-dot-total" style="display:none" />`;
 
   // Display the SVG
   svg.innerHTML = content;
@@ -1538,12 +1551,48 @@ function showSimulatorTooltip(event) {
   const pTotal = p.principal + p.fees;
   const principalPct = (p.principal / pTotal * 100).toFixed(1);
   const feesPct = (p.fees / pTotal * 100).toFixed(1);
-  const tooltipText = `Price change in ${g.AIDAnalyticsName}: ${labels[closestIdx]}<br/>Next profit: ${variation}<br/>(${principalPct}% principal + ${feesPct}% fees)`;
+  const html = `
+    <div class="tooltip-title">Simulation</div>
+    <div class="tooltip-row">Price change in ${g.AIDAnalyticsName}: <b>${labels[closestIdx]}</b></div>
+    <div class="tooltip-divider"></div>
+    <div class="tooltip-row">Next profit: <b>${variation}</b></div>
+    <div class="tooltip-row-dim">(${principalPct}% principal + ${feesPct}% fees)</div>
+  `;
 
-  // Show tooltip
+  showCustomTooltip(event, html);
+}
+
+function showILTooltip(event, withFees) {
+  const d = g.ilTooltipData;
+  if (!d) return;
+
+  let html = "";
+  if (withFees) {
+    html = `
+      <div class="tooltip-title">Position with fees</div>
+      <div class="tooltip-row">Price change: <b>x${d.r.toFixed(2)}</b></div>
+      <div class="tooltip-row-dim">${d.formattedPrice}</div>
+      <div class="tooltip-divider"></div>
+      <div class="tooltip-row">Worth: <b>${d.formattedCurrent}</b></div>
+      <div class="tooltip-row">Net result: <b>${(d.netResult * 100).toFixed(2)}%</b> of Hodl</div>
+    `;
+  } else {
+    html = `
+      <div class="tooltip-title">Position without fees</div>
+      <div class="tooltip-row">Price change: <b>x${d.r.toFixed(2)}</b></div>
+      <div class="tooltip-row-dim">${d.formattedPrice}</div>
+      <div class="tooltip-divider"></div>
+      <div class="tooltip-row">Worth: <b>${d.formattedPrincipal}</b></div>
+      <div class="tooltip-row">IL: <b>${(d.currentIL * 100).toFixed(2)}%</b> of Hodl</div>
+    `;
+  }
+  showCustomTooltip(event, html);
+}
+
+function showCustomTooltip(event, htmlContent) {
   const tooltip = document.getElementById('tooltip');
-  if (!tooltip) { return; }
-  tooltip.innerHTML = tooltipText;
+  if (!tooltip) return;
+  tooltip.innerHTML = htmlContent;
   tooltip.style.display = 'block';
 
   // Position tooltip near mouse but not under it (to avoid flicker)
@@ -1560,10 +1609,13 @@ function showSimulatorTooltip(event) {
   tooltip.style.top = posY + 'px';
 }
 
-function hideSimulatorTooltip() {
-  // Hide tooltip and dot
+function hideCustomTooltip() {
   const tooltip = document.getElementById('tooltip');
   if (tooltip) { tooltip.style.display = 'none'; }
+}
+
+function hideSimulatorTooltip() {
+  hideCustomTooltip();
   const dot = document.getElementById('simulator-dot');
   if (dot) { dot.style.display = 'none'; }
 }
