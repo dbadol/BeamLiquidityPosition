@@ -272,6 +272,7 @@ function initNodeSelector() {
     e.stopPropagation();
     const isVisible = nodeDropdown.style.display === 'flex';
     nodeDropdown.style.display = isVisible ? 'none' : 'flex';
+    if (!isVisible) { checkNodeStatus(); } // Update node status color
   };
 
   // Close dropdown when clicking outside
@@ -369,7 +370,7 @@ function deleteCustomNode(index, event) {
   const deletedUrl = customNodes[index];
   customNodes.splice(index, 1);
   localStorage.setItem('beam_custom_nodes', JSON.stringify(customNodes));
-  
+
   if (currentNodeUrl === deletedUrl) {
     selectNode(DEFAULT_NODES[0]);
   }
@@ -407,15 +408,13 @@ function selectNode(url) {
   updateNodeDisplay();
   checkNodeStatus();
   // Trigger a refresh of data if a search was already performed
-  if (document.getElementById('SearchField').value) {
-    submitKernelSearch();
-  }
+  if (document.getElementById('SearchField').value) { submitKernelSearch(); }
 }
 
 async function checkNodeStatus() {
   const nodeStatusIcon = document.getElementById('NodeStatusIcon');
   if (!nodeStatusIcon) return;
-  
+
   // For simplicity, we'll try to fetch the base URL with a short timeout
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000); // Set timeout to 5s
@@ -469,6 +468,8 @@ function updateDisplay() {
 
 // Launch a kernel search request
 function submitKernelSearch() {
+  // Update node status color (without awaiting it)
+  checkNodeStatus();
   // Get search string
   g.originalSearch = document.getElementById('SearchField').value.trim();
   g.kernel = g.originalSearch;
@@ -639,6 +640,8 @@ function invertPrices() {
 
 // Launch a request on Assets names
 function submitAssetsQuery() {
+  // Update node status color (without awaiting it)
+  checkNodeStatus();
   // Build request to explorer node
   const xmlhttp = new XMLHttpRequest();
   xmlhttp.onload = parseAssetsQuery;
@@ -695,6 +698,8 @@ function parseAssetsQuery() {
 
 // Launch a request on current pool
 function submitPoolQuery() {
+  // Update node status color (without awaiting it)
+  checkNodeStatus();
   // Only do something if a pool has already been defined
   if (!g.AMML) { return; };
   // Build request to explorer node
@@ -903,19 +908,18 @@ window.onscroll = function() { scrollFunction() };
 document.querySelector('.explorerNodeURL').textContent = currentNodeUrl;
 updateDisplay();
 
-// Check regularly the node status
 document.addEventListener("DOMContentLoaded", () => {
+  // Initialize node selector
   initNodeSelector();
-  setInterval(checkNodeStatus, 30000); // Periodic check every 30 seconds
-  
   // Listen to search field changes to update the star icon
   const searchField = document.getElementById('SearchField');
   if (searchField) {
     searchField.addEventListener('input', updateStarState);
     searchField.addEventListener('change', updateStarState);
   }
-  
+  // Update bookmarks
   updateBookmarksDisplay();
+  // Clean URL parameters
   checkURL();
 });
 
