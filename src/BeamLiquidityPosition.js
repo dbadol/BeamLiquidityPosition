@@ -148,6 +148,10 @@ const g = {
   AIDAnalytics: undefined, // ID of the Asset used as unit for Analytics
   AIDAnalyticsName: undefined, // Name of the Asset used as unit for Analytics
   ilTooltipData: {}, // Data for IL chart tooltips
+  p2in1init: undefined, // Initial price of asset 2 in asset 1
+  p1in2init: undefined, // Initial price of asset 1 in asset 2
+  p2in1pool: undefined, // Current price of asset 2 in asset 1
+  p1in2pool: undefined, // Current price of asset 1 in asset 2
 }
 // Default text to display when the variable is 'undefined'
 const defaultValue = {
@@ -592,23 +596,29 @@ function parseKernelSearch() {
 
 // Compute prices according to current unit
 function computePrices() {
+  // Compute all base prices for later use
+  if (g.initialAID1Amount && g.initialAID2Amount) {
+    g.p2in1init = g.initialAID1Amount / g.initialAID2Amount;
+    g.p1in2init = g.initialAID2Amount / g.initialAID1Amount;
+  }
+  if (g.poolAID1Amount && g.poolAID2Amount) {
+    g.p2in1pool = g.poolAID1Amount / g.poolAID2Amount;
+    g.p1in2pool = g.poolAID2Amount / g.poolAID1Amount;
+  }
+
   // Define default price units (price is given as a value of 'priceName1 per priceName2')
   if (g.priceAID1 === undefined) { 
     g.priceAID1 = g.AID1; g.priceName1 = g.AID1Name; 
     g.priceAID2 = g.AID2; g.priceName2 = g.AID2Name; 
   }
-  // Compute prices
+  // Compute display prices based on user preference
   if (g.priceAID1 == g.AID1) {
-    // Compute initial price
-    g.initialPrice = g.initialAID1Amount / g.initialAID2Amount;
-    // Compute pool price (if the pool info is already available)
-    if (g.poolAID1Amount !== undefined) { g.poolPrice = g.poolAID1Amount / g.poolAID2Amount; }
+    g.initialPrice = g.p2in1init;
+    g.poolPrice = g.p2in1pool;
   }
   if (g.priceAID1 == g.AID2) {
-    // Compute initial price
-    g.initialPrice = g.initialAID2Amount / g.initialAID1Amount;
-    // Compute pool price (if the pool info is already available)
-    if (g.poolAID2Amount !== undefined) { g.poolPrice = g.poolAID2Amount / g.poolAID1Amount; }
+    g.initialPrice = g.p1in2init;
+    g.poolPrice = g.p1in2pool;
   }
 }
 
@@ -752,11 +762,9 @@ function computeFees() {
   g.AID2Total = g.poolAID2Amount * g.poolShare;
   // Compute current position (principal), based the on constant product formula
   let k = g.initialAID1Amount * g.initialAID2Amount;
-  let p1 = g.poolAID1Amount / g.poolAID2Amount;
-  let p2 = g.poolAID2Amount / g.poolAID1Amount;
   // Simple maths to get there...
-  g.AID1Principal = Math.sqrt(k * p1);
-  g.AID2Principal = Math.sqrt(k * p2);
+  g.AID1Principal = Math.sqrt(k * g.p2in1pool);
+  g.AID2Principal = Math.sqrt(k * g.p1in2pool);
   // Compute current position (received fees)
   g.AID1Fees = g.AID1Total - g.AID1Principal;
   g.AID2Fees = g.AID2Total - g.AID2Principal;
@@ -791,14 +799,10 @@ function computePnL() {
   // Compute price change of the pair
   if (g.AIDPnL == g.AID1) {
     // Change of price of Asset 2 in Asset 1
-    const entryPrice = g.initialAID1Amount / g.initialAID2Amount;
-    const currentPrice = g.poolAID1Amount / g.poolAID2Amount;
-    g.priceChange = (currentPrice / entryPrice) - 1;
+    g.priceChange = (g.p2in1pool / g.p2in1init) - 1;
   } else {
     // Change of price of Asset 1 in Asset 2
-    const entryPrice = g.initialAID2Amount / g.initialAID1Amount;
-    const currentPrice = g.poolAID2Amount / g.poolAID1Amount;
-    g.priceChange = (currentPrice / entryPrice) - 1;
+    g.priceChange = (g.p1in2pool / g.p1in2init) - 1;
   }
 }
 
@@ -813,16 +817,16 @@ function computeHypo() {
     // Liquidity pairs are always balanced, so total value is simply the double of any one
     g.hypoCurrentValue = 2 * g.AID1Total;
     // Hypothetical worth for each scenario
-    g.hypoHodlValue = g.initialAID1Amount + (g.initialAID2Amount * g.poolAID1Amount / g.poolAID2Amount);
+    g.hypoHodlValue = g.initialAID1Amount + (g.initialAID2Amount * g.p2in1pool);
     g.hypoA1Value = 2 * g.initialAID1Amount;
-    g.hypoA2Value = (2 * g.initialAID2Amount) * (g.poolAID1Amount / g.poolAID2Amount);
+    g.hypoA2Value = (2 * g.initialAID2Amount) * g.p2in1pool;
   }
   if (g.AIDHypo == g.AID2) {
     // Liquidity pairs are always balanced, so total value is simply the double of any one
     g.hypoCurrentValue = 2 * g.AID2Total;
     // Hypothetical worth for each scenario
-    g.hypoHodlValue = (g.initialAID1Amount * g.poolAID2Amount / g.poolAID1Amount) + g.initialAID2Amount;
-    g.hypoA1Value = (2 * g.initialAID1Amount) * (g.poolAID2Amount / g.poolAID1Amount);
+    g.hypoHodlValue = (g.initialAID1Amount * g.p1in2pool) + g.initialAID2Amount;
+    g.hypoA1Value = (2 * g.initialAID1Amount) * g.p1in2pool;
     g.hypoA2Value = 2 * g.initialAID2Amount;
   }
   // Compare current worth to the hypothetical scenarios
@@ -1073,15 +1077,11 @@ function drawILChart() {
   // Compute price ratio (= current price / initial price)
   let r, assetOfName, inAssetName;
   if (g.AIDAnalytics === g.AID1) { // Price of Asset 2 in Asset 1
-    const initialPrice = g.initialAID1Amount / g.initialAID2Amount;
-    const currentPrice = g.poolAID1Amount / g.poolAID2Amount;
-    r = currentPrice / initialPrice;
+    r = g.p2in1pool / g.p2in1init;
     assetOfName = g.AID2Name;
     inAssetName = g.AID1Name;
   } else { // Price of Asset 1 in Asset 2
-    const initialPrice = g.initialAID2Amount / g.initialAID1Amount;
-    const currentPrice = g.poolAID2Amount / g.poolAID1Amount;
-    r = currentPrice / initialPrice;
+    r = g.p1in2pool / g.p1in2init;
     assetOfName = g.AID1Name;
     inAssetName = g.AID2Name;
   }
@@ -1143,7 +1143,7 @@ function drawILChart() {
   const formattedPrincipal = displayFormat.totalCurrentValue.format(principalValue) + ' ' + g.AIDAnalyticsName;
   
   // Get absolute price
-  const currentPriceVal = (g.AIDAnalytics === g.AID1) ? (g.poolAID1Amount / g.poolAID2Amount) : (g.poolAID2Amount / g.poolAID1Amount);
+  const currentPriceVal = (g.AIDAnalytics === g.AID1) ? g.p2in1pool : g.p1in2pool;
   const formattedPrice = displayFormat.poolPrice.format(currentPriceVal) + ' ' + inAssetName + '/' + assetOfName;
 
   // Store data for tooltips
@@ -1237,16 +1237,16 @@ function drawScenariosChart() {
     current = 2 * g.AID1Total;
     principal = 2 * g.AID1Principal;
     fees = 2 * g.AID1Fees;
-    hodl = g.initialAID1Amount + (g.initialAID2Amount * g.poolAID1Amount / g.poolAID2Amount);
+    hodl = g.initialAID1Amount + (g.initialAID2Amount * g.p2in1pool);
     a1 = 2 * g.initialAID1Amount;
-    a2 = (2 * g.initialAID2Amount) * (g.poolAID1Amount / g.poolAID2Amount);
+    a2 = (2 * g.initialAID2Amount) * g.p2in1pool;
   } else {
     initial = 2 * g.initialAID2Amount;
     current = 2 * g.AID2Total;
     principal = 2 * g.AID2Principal;
     fees = 2 * g.AID2Fees;
-    hodl = (g.initialAID1Amount * g.poolAID2Amount / g.poolAID1Amount) + g.initialAID2Amount;
-    a1 = (2 * g.initialAID1Amount) * (g.poolAID2Amount / g.poolAID1Amount);
+    hodl = (g.initialAID1Amount * g.p1in2pool) + g.initialAID2Amount;
+    a1 = (2 * g.initialAID1Amount) * g.p1in2pool;
     a2 = 2 * g.initialAID2Amount;
   }
 
@@ -1351,8 +1351,8 @@ function drawSimulatorChart() {
     currentFees = 2 * g.AID1Fees;
     initialA1 = g.initialAID1Amount;
     initialA2 = g.initialAID2Amount;
-    pInit = g.initialAID1Amount / g.initialAID2Amount;
-    pCurr = g.poolAID1Amount / g.poolAID2Amount;
+    pInit = g.p2in1init;
+    pCurr = g.p2in1pool;
   } else {
     currentTotal = 2 * g.AID2Total;
     initialTotal = 2 * g.initialAID2Amount;
@@ -1360,8 +1360,8 @@ function drawSimulatorChart() {
     currentFees = 2 * g.AID2Fees;
     initialA1 = g.initialAID2Amount;
     initialA2 = g.initialAID1Amount;
-    pInit = g.initialAID2Amount / g.initialAID1Amount;
-    pCurr = g.poolAID2Amount / g.poolAID1Amount;
+    pInit = g.p1in2init;
+    pCurr = g.p1in2pool;
   }
 
   // Average daily fee rate based on history
