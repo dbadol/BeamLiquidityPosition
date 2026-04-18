@@ -917,6 +917,15 @@ document.addEventListener("DOMContentLoaded", () => {
     searchField.addEventListener('input', updateStarState);
     searchField.addEventListener('change', updateStarState);
   }
+  // Redraw charts on window resize
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      const activeTabId = document.querySelector('.tab-btn.active')?.id;
+      if (activeTabId) { switchTab(activeTabId); }
+    }, 200);
+  });
   // Update bookmarks
   updateBookmarksDisplay();
   // Clean URL parameters
@@ -1072,8 +1081,10 @@ function drawILChart() {
   if (!svg || !g.initialAID1Amount || !g.initialAID2Amount || !g.poolAID1Amount || !g.poolAID2Amount) { return; }
 
   // Graph size
-  const width = 400;
+  const container = svg.parentElement;
+  const width = Math.max(300, container.clientWidth);
   const height = 180;
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
   const padding = 30; // Padding for labels
   const chartWidth = width - padding * 2;
   const chartHeight = height - padding * 2;
@@ -1224,8 +1235,10 @@ function drawScenariosChart() {
   if (!svg || !g.initialAID1Amount || !g.initialAID2Amount || !g.poolAID1Amount || !g.poolAID2Amount) { return; }
 
   // Graph size
-  const width = 400;
+  const container = svg.parentElement;
+  const width = Math.max(300, container.clientWidth);
   const height = 180;
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
   const paddingT = 20; // Top padding for labels
   const paddingB = 30; // Bottom padding for labels
   const paddingL = 20;
@@ -1331,8 +1344,10 @@ function drawSimulatorChart() {
   if (!svg || !g.initialAID1Amount || !g.initialAID2Amount || !g.poolAID1Amount || !g.poolAID2Amount) { return; }
 
   // Graph size
-  const width = 400;
+  const container = svg.parentElement;
+  const width = Math.max(300, container.clientWidth);
   const height = 180;
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
   const paddingT = 20;
   const paddingB = 40;
   const paddingL = 40;

@@ -144,15 +144,14 @@ body {
   flex: 1;
 }
 #Banner {
-  display: flex;
+  display: flex; /* row direction is the default */
   align-items: center;
   width: 100%;
   max-width: 920px; /* Remove this for full width */
-  min-width: 460px; /* Remove this for full width */
   margin: auto; /* Keep horizontally centered */
   background-color: var(--color-banner-background);
   border-radius: 10px; /* Slightly round corners */
-  padding: 8px 10px 7px 10px;
+  padding: 5px 10px;
   text-align: center;
 }
 #BeamLogo svg {
@@ -164,11 +163,11 @@ body {
 }
 #BannerCenter {
   flex: 1;
-  white-space: nowrap; /* Don't wrap text */
   padding: 0 10px 0 10px;
 }
 #BeamTitle {
   font-size: 2.4rem;
+  white-space: nowrap; /* Don't wrap text */
   color: var(--color-banner-title);
 }
 #Version {
@@ -180,6 +179,7 @@ body {
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
   padding: 6px 12px;
   border-radius: 4px;
@@ -566,6 +566,7 @@ body {
   font-weight: bold;
   transition: all 0.2s;
   border-bottom: 2px solid transparent;
+  white-space: nowrap;
 }
 .tab-btn:hover {
   color: var(--color-text);
@@ -679,8 +680,7 @@ body {
 .simulator-controls {
   display: flex;
   flex-direction: row;
-  gap: 20px;
-  padding: 10px 20px;
+  padding: 10px 5px;
   background: var(--color-opacity-05);
   border-radius: 8px;
   margin: 10px 0 5px 0;
@@ -688,8 +688,8 @@ body {
 .control-group {
   display: flex;
   flex-direction: column;
-  gap: 5px;
   flex: 1;
+  margin: 0 10px;
 }
 .control-group label {
   font-size: 1.1rem;
@@ -1105,4 +1105,81 @@ table, td, th {
 /* General hidden elements */
 .hidden {
   display: none;
+}
+
+/* RESPONSIVE DESIGN FOR MOBILE */
+@media (max-width: 640px) { /* Breakpoint for the banner */
+  #Banner {
+    flex-direction: column; /* Switch to vertical */
+    max-width: 100%; /* Use all the available width */
+    min-width: 0; /* Allows a flex item to shrink below its default minimum size */
+    padding: 15px 10px 15px 10px;
+  }
+  #BannerCenter {
+    padding: 5px 10px 10px 10px;
+  }
+  #BeamTitle {
+    font-size: 1.8rem; /* Smaller font */
+    white-space: normal; /* Allow wrap */
+  }
+  #NodeDropdown {
+    min-width: 0;
+    right: unset; /* Center the dropdown */
+  }
+}
+@media (max-width: 480px) { /* Breakpoint for the content of the blocks */
+  .blockUnit {
+    max-width: 100%;
+    min-width: 0;
+    margin: 10px 5px;
+    padding: 15px;
+  }
+  #AboutBlock {
+    max-width: 100%;
+    min-width: 0;
+  }
+  /* Search Area adjustments */
+  #SearchForm {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px; /* Ok for Chrome 83 in grid layout */
+  }
+  .searchFieldWrapper {
+    grid-column: span 2;
+    margin-right: 0;
+  }
+  #BookmarksButton, #SearchButton {
+    width: 100%;
+    height: 40px;
+  }
+  /* Tabs adjustment */
+  .blockHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 25px;
+  }
+  .blockHeader > .blockTitle {
+    margin-bottom: 10px;
+  }
+  .tabs {
+    justify-content: flex-start;
+    width: 100%;
+  }
+  /* Legend adjustment */
+  .chart-legend {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin: -5px -7.5px;
+  }
+  .chart-legend .legend-item {
+    margin: 5px 7.5px;
+  }
+  /* Simulator controls */
+  .simulator-controls {
+    flex-direction: column;
+    padding: 10px 15px;
+  }
+  .control-group {
+    margin: 5px;
+  }
 }
