@@ -354,6 +354,8 @@ body {
   max-width: 442px;
   min-width: 400px;
   border-radius: 10px;
+  display: flex;
+  flex-direction: column;
 }
 .blockTitle { /* Copied from the DEX dApp */
   margin: 0;
@@ -904,7 +906,9 @@ table, td, th {
   border: none;
   padding: 5px; /* Add a small padding */
 }
-.listOfValues { }
+.listOfValues {
+  margin-top: auto; /* Stick to the bottom of the block (auto margin in a flex uses all the available space) */
+}
 .blockTable {
   width: 100%;
   /* max-width: 412px; /* Same as blockUnit (minus padding) */
