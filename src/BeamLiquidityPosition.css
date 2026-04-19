@@ -918,6 +918,17 @@ table, td, th {
   padding: 8px 0;
   vertical-align: baseline;
 }
+.labelCell { /* Label cell */
+  white-space: nowrap; /* Do not wrap Labels */
+  text-align: left;
+}
+.dataCell { /* Merged cell with Value + Unit */
+  text-align: right;
+  white-space: nowrap; /* Keep value and unit together on the same line */
+}
+.priceCell, .durationCell, .indicatorCell { /* Right align some cells with long text */
+  text-align: right;
+}
 .separator {
   border-top: 1px solid var(--color-opacity-2);
 }
@@ -932,7 +943,6 @@ table, td, th {
 .rowValue {
   /*font-family: 'RobotoMono', ui-monospace, monospace; */
   display: inline-block; /* Because block-level elements can sometimes interfere with the baseline alignment logic */
-  width: 100%;
   font-weight: 400;
   font-size: 1.4rem;
   white-space: nowrap;
@@ -1185,5 +1195,49 @@ table, td, th {
   }
   .control-group {
     margin: 5px;
+  }
+  /* Table responsiveness: Atomic wrapping of Value + Unit together to a new row */
+  .blockTable, .blockTable tbody {
+    display: block; /* Don't display as table anymore */
+    width: 100%;
+  }
+  .blockTable tr {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end; /* Align components to the right */
+    align-items: baseline;
+    padding: 8px 0; /* Padding has no effect on <tr> in table display, but it does on flex display */
+  }
+  .blockTable td {
+    display: block;
+    padding: 0;
+  }
+  .labelCell { /* Label cell */
+    flex: 0 0 auto; /* Do not shrink Labels, take full content width */
+    margin-right: auto; /* Push the data cell to the right edge */
+    text-align: left;
+    max-width: 100%; /* But allow the cell itself to be contained (text will overflow) */
+  }
+  .dataCell { /* Combined Value/Unit cell */
+    flex: 0 0 auto;
+    text-align: right;
+    white-space: normal; /* Allow elements inside to wrap to new lines */
+    max-width: 100%;
+  }
+  .priceCell, .durationCell { /* Allow wrapping in some rows with long text */
+    white-space: normal;
+  }
+  .rowValue {
+    display: inline;
+    width: auto;
+    white-space: nowrap; /* Prevent the number itself from splitting */
+  }
+  .rowValue.price, .rowValue.duration {
+    white-space: normal; /* Special case for long strings: they can wrap */
+  }
+  .rowUnit {
+    display: inline;
+    padding-left: 8px; /* Standard spacing on mobile */
+    white-space: nowrap; /* Force the whole unit to move at once if it doesn't fit on the current line */
   }
 }

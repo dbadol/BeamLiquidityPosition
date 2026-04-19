@@ -101,28 +101,36 @@
             <div class="listOfValues">
               <table class="blockTable">
                 <tr>
-                  <td><span class="rowLabel">Block height</span></td>
-                  <td><span class="rowValue blockHeight" data-initialheight>-</span></td>
-                  <td><span class="rowUnit dateAndTime" data-initialdate></span></td>
+                  <td class="labelCell"><span class="rowLabel">Block height</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue blockHeight" data-initialheight>-</span>
+                    <span class="rowUnit dateAndTime" data-initialdate></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">Asset A deposited</span></td>
-                  <td><span class="rowValue" data-initialaid1amount>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">Asset A deposited</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-initialaid1amount>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">Asset B deposited</span></td>
-                  <td><span class="rowValue" data-initialaid2amount>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">Asset B deposited</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-initialaid2amount>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">LP token received</span></td>
-                  <td><span class="rowValue" data-initialammlamount>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-ammlname>AMML</span> <span class="assetID">(id:<span data-amml>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">LP token received</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-initialammlamount>-</span>
+                    <span class="rowUnit"><span class="assetName" data-ammlname>AMML</span> <span class="assetID">(id:<span data-amml>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr class="separator">
-                  <td><span class="rowLabel">Initial price <span class="swapIcon"><a href="javascript:invertPrices();" title="Switch units"><svg width='1em' height='1em'><use href='#icon_swap'/></svg></a></span></span></td>
-                  <td colspan="2"><span class="rowValue price">1 <span class="assetName" data-pricename2>Asset-B</span> = <span data-initialprice>1</span> <span class="assetName" data-pricename1>Asset-A</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">Initial price <span class="swapIcon"><a href="javascript:invertPrices();" title="Switch units"><svg width='1em' height='1em'><use href='#icon_swap'/></svg></a></span></span></td>
+                  <td class="dataCell priceCell"><span class="rowValue price">1 <span class="assetName" data-pricename2>Asset-B</span> = <span data-initialprice>1</span> <span class="assetName" data-pricename1>Asset-A</span></span></td>
                 </tr>
               </table>
             </div>
@@ -133,33 +141,43 @@
             <div class="listOfValues">
               <table class="blockTable">
                 <tr>
-                  <td><span class="rowLabel">Block height</span></td>
-                  <td><span class="rowValue blockHeight" data-currentheight>-</span></td>
-                  <td><span class="rowUnit dateAndTime" data-currentdate></span></td>
+                  <td class="labelCell"><span class="rowLabel">Block height</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue blockHeight" data-currentheight>-</span>
+                    <span class="rowUnit dateAndTime" data-currentdate></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">Fee tier</span></td>
-                  <td><span class="rowValue feeTier"><span data-feetiername>Low / Medium / High</span> (<span data-feetiervalue>%</span>)</span></td>
-                  <td></td>
+                  <td class="labelCell"><span class="rowLabel">Fee tier</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue feeTier"><span data-feetiername>Low / Medium / High</span> (<span data-feetiervalue>%</span>)</span>
+                    <span class="rowUnit"></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">Total Asset A</span></td>
-                  <td><span class="rowValue" data-poolaid1amount>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">Total Asset A</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-poolaid1amount>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">Total Asset B</span></td>
-                  <td><span class="rowValue" data-poolaid2amount>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">Total Asset B</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-poolaid2amount>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">Total LP token</span></td>
-                  <td><span class="rowValue" data-poolammlamount>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-ammlname>AMML</span> <span class="assetID">(id:<span data-amml>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">Total LP token</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-poolammlamount>-</span>
+                    <span class="rowUnit"><span class="assetName" data-ammlname>AMML</span> <span class="assetID">(id:<span data-amml>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr class="separator">
-                  <td><span class="rowLabel">Current price <span class="swapIcon"><a href="javascript:invertPrices();" title="Swap units"><svg width='1em' height='1em'><use href='#icon_swap'/></svg></a></span></span></td>
-                  <td colspan="2"><span class="rowValue price">1 <span class="assetName" data-pricename2>Asset-B</span> = <span data-poolprice>1</span> <span class="assetName" data-pricename1>Asset-A</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">Current price <span class="swapIcon"><a href="javascript:invertPrices();" title="Swap units"><svg width='1em' height='1em'><use href='#icon_swap'/></svg></a></span></span></td>
+                  <td class="dataCell priceCell"><span class="rowValue price">1 <span class="assetName" data-pricename2>Asset-B</span> = <span data-poolprice>1</span> <span class="assetName" data-pricename1>Asset-A</span></span></td>
                 </tr>
               </table>
             </div>
@@ -170,39 +188,53 @@
             <div class="listOfValues">
               <table class="blockTable">
                 <tr>
-                  <td><span class="rowLabel">Share of the pool</span></td>
-                  <td><span class="rowValue" data-poolshare>-</span></td>
-                  <td></td>
+                  <td class="labelCell"><span class="rowLabel">Share of the pool</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-poolshare>-</span>
+                    <span class="rowUnit"></span>
+                  </td>
                 </tr>
                 <tr class="separator">
-                  <td><span class="rowLabel">Principal A</span></td>
-                  <td><span class="rowValue" data-aid1principal>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">Principal A</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-aid1principal>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">+ Fees earned A</span></td>
-                  <td><span class="rowValue" data-aid1fees>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">+ Fees earned A</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-aid1fees>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">= Available Asset A</span></td>
-                  <td><span class="rowValue" data-aid1total>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">= Available Asset A</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-aid1total>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aid1name>Asset-A</span> <span class="assetID">(id:<span data-aid1>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr class="separator">
-                  <td><span class="rowLabel">Principal B</span></td>
-                  <td><span class="rowValue" data-aid2principal>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">Principal B</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-aid2principal>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">+ Fees earned B</span></td>
-                  <td><span class="rowValue" data-aid2fees>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">+ Fees earned B</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-aid2fees>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">= Available Asset B</span></td>
-                  <td><span class="rowValue" data-aid2total>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">= Available Asset B</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-aid2total>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aid2name>Asset-B</span> <span class="assetID">(id:<span data-aid2>-</span>)</span></span>
+                  </td>
                 </tr>
               </table>
             </div>
@@ -213,35 +245,41 @@
             <div class="listOfValues">
               <table class="blockTable">
                 <tr>
-                  <td><span class="rowLabel">Time in the pool</span></td>
-                  <td colspan="2"><span class="rowValue duration" data-durationinpool>-</span></td>
+                  <td class="labelCell"><span class="rowLabel">Time in the pool</span></td>
+                  <td class="dataCell durationCell"><span class="rowValue duration" data-durationinpool>-</span></td>
                 </tr>
                 <tr class="separator">
-                  <td><span class="rowLabel">Current worth</span></td>
-                  <td><span class="rowValue" data-totalcurrentvalue>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aidpnlname>Asset-A</span><span class="assetID"> (id:<span data-aidpnl>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">Current worth</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-totalcurrentvalue>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aidpnlname>Asset-A</span><span class="assetID"> (id:<span data-aidpnl>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">&minus; Initial worth</span></td>
-                  <td><span class="rowValue" data-totalinitialvalue>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aidpnlname>Asset-A</span><span class="assetID"> (id:<span data-aidpnl>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">&minus; Initial worth</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-totalinitialvalue>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aidpnlname>Asset-A</span><span class="assetID"> (id:<span data-aidpnl>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">= Profit or Loss <span class="infoIcon" title="Profit if positive. Loss if negative."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
-                  <td><span class="rowValue" data-totalprofit>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aidpnlname>Asset-A</span><span class="assetID"> (id:<span data-aidpnl>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">= Profit or Loss <span class="infoIcon" title="Profit if positive. Loss if negative."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-totalprofit>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aidpnlname>Asset-A</span><span class="assetID"> (id:<span data-aidpnl>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr class="separator">
-                  <td><span class="rowLabel">ROI <span class="infoIcon" title="Return On Investment = (Total Profit / Initial Worth)"><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
-                  <td colspan="2"><span class="rowValue" data-totalroi>-</span></td>
+                  <td class="labelCell"><span class="rowLabel">ROI <span class="infoIcon" title="Return On Investment = (Total Profit / Initial Worth)"><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
+                  <td class="dataCell indicatorCell"><span class="rowValue" data-totalroi>-</span></td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">Estimated APR <span class="infoIcon" title="Annual Percentage Rate = ROI extrapolated to one year"><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
-                  <td colspan="2"><span class="rowValue" data-totalapr>-</span></td>
+                  <td class="labelCell"><span class="rowLabel">Estimated APR <span class="infoIcon" title="Annual Percentage Rate = ROI extrapolated to one year"><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
+                  <td class="dataCell indicatorCell"><span class="rowValue" data-totalapr>-</span></td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">Price Change in <span data-aidpnlname>Asset-A</span> <span class="infoIcon" title="Percentage change of the pair price since entry"><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
-                  <td colspan="2"><span class="rowValue" data-pricechange>-</span></td>
+                  <td class="labelCell"><span class="rowLabel">Price Change in <span data-aidpnlname>Asset-A</span> <span class="infoIcon" title="Percentage change of the pair price since entry"><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
+                  <td class="dataCell indicatorCell"><span class="rowValue" data-pricechange>-</span></td>
                 </tr>
               </table>
             </div>
@@ -252,39 +290,53 @@
             <div class="listOfValues">
               <table class="blockTable">
                 <tr>
-                  <td class="rowLabel">Current worth</td>
-                  <td><span class="rowValue" data-hypocurrentvalue>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">Current worth</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-hypocurrentvalue>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr class="separator">
-                  <td><span class="rowLabel">1. If Hodl the pair<span class="infoIcon" title="Scenario 1: Current worth if the two coins had been kept and NOT deposited in the Liquidity Pool."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
-                  <td><span class="rowValue" data-hypohodlvalue>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">1. If Hodl the pair<span class="infoIcon" title="Scenario 1: Current worth if the two coins had been kept and NOT deposited in the Liquidity Pool."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-hypohodlvalue>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">Current Profit or Loss <span class="infoIcon" title="If negative, it's called &quot;Impermanent Loss&quot; (IL)"><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
-                  <td><span class="rowValue" data-hypohodldiff>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">Current Profit or Loss <span class="infoIcon" title="If negative, it's called &quot;Impermanent Loss&quot; (IL)"><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-hypohodldiff>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr class="separator">
-                  <td><span class="rowLabel">2. If Hodl all in <span data-aid1name>Asset-1</span> <span class="infoIcon" title="Scenario 2: Current worth if all the coins had been kept as Asset-A instead of put in the Liquidity Pool."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
-                  <td><span class="rowValue" data-hypoa1value>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">2. If Hodl all in <span data-aid1name>Asset-1</span> <span class="infoIcon" title="Scenario 2: Current worth if all the coins had been kept as Asset-A instead of put in the Liquidity Pool."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-hypoa1value>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">Current Profit or Loss</span></td>
-                  <td><span class="rowValue" data-hypoa1diff>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">Current Profit or Loss</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-hypoa1diff>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr class="separator">
-                  <td><span class="rowLabel">3. If Hodl all in <span data-aid2name>Asset-2</span> <span class="infoIcon" title="Scenario 3: Current worth if all the coins had been kept as Asset-B instead of put in the Liquidity Pool."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
-                  <td><span class="rowValue" data-hypoa2value>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">3. If Hodl all in <span data-aid2name>Asset-2</span> <span class="infoIcon" title="Scenario 3: Current worth if all the coins had been kept as Asset-B instead of put in the Liquidity Pool."><svg width='0.8em' height='0.8em'><use href='#icon_info'/></svg></span></span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-hypoa2value>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span>
+                  </td>
                 </tr>
                 <tr>
-                  <td><span class="rowLabel">Current Profit or Loss</span></td>
-                  <td><span class="rowValue" data-hypoa2diff>-</span></td>
-                  <td><span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span></td>
+                  <td class="labelCell"><span class="rowLabel">Current Profit or Loss</span></td>
+                  <td class="dataCell">
+                    <span class="rowValue" data-hypoa2diff>-</span>
+                    <span class="rowUnit"><span class="assetName" data-aidhyponame>Asset-A</span><span class="assetID"> (id:<span data-aidhypo>-</span>)</span></span>
+                  </td>
                 </tr>
               </table>
             </div>
