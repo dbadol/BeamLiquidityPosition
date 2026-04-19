@@ -1307,15 +1307,23 @@ function drawScenariosChart() {
         </clipPath>
       `;
       bars += `
-        <g>
-          <title>${principalPct}% principal + ${feesPct}% fees</title>
+        <g onmousemove="showScenariosTooltip(event, '${principalPct}', '${feesPct}')" onmouseleave="hideCustomTooltip()" onclick="event.stopPropagation()">
           <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" class="${s.class}" rx="3" />
           <rect x="${x}" y="${y}" width="${barWidth}" height="${feesHeight}" class="bar-fees" clip-path="url(#current-bar-clip)" />
           <line x1="${x}" y1="${midY}" x2="${x + barWidth}" y2="${midY}" class="bar-split-line" />
         </g>
       `;
     } else {
-      bars += `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" class="${s.class}" rx="3" />`;
+      let desc = '';
+      if (s.label === 'Initial') { desc = 'Value of the initial position.'; }
+      else if (s.label === '1.HODL') { desc = 'Current value if the two coins had been kept and NOT deposited in the Liquidity Pool.'; }
+      else if (s.label.includes('2.All')) { desc = `Current value if all the coins had been kept as ${g.AID1Name}.`; }
+      else if (s.label.includes('3.All')) { desc = `Current value if all the coins had been kept as ${g.AID2Name}.`; }
+      bars += `
+        <g onmousemove="showSimpleTooltip(event, '${s.label}', '${desc}')" onmouseleave="hideCustomTooltip()" onclick="event.stopPropagation()">
+          <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" class="${s.class}" rx="3" />
+        </g>
+      `;
       if (s.label === 'Initial' || s.label === '1.HODL') { // The split line is also displayed on the Initial and HODL bars
         const midY = y + barHeight / 2;
         bars += `<line x1="${x}" y1="${midY}" x2="${x + barWidth}" y2="${midY}" class="bar-split-line" />`;
@@ -1585,6 +1593,23 @@ function showSimulatorTooltip(event) {
   showCustomTooltip(event, html);
 }
 
+function showScenariosTooltip(event, principalPct, feesPct) {
+  const html = `
+    <div class="tooltip-title">Current Position</div>
+    <div class="tooltip-row">Principal: <b>${principalPct}%</b></div>
+    <div class="tooltip-row">Fees earned: <b>${feesPct}%</b></div>
+  `;
+  showCustomTooltip(event, html);
+}
+
+function showSimpleTooltip(event, title, description) {
+  const html = `
+    <div class="tooltip-title">${title}</div>
+    <div class="tooltip-row">${description}</div>
+  `;
+  showCustomTooltip(event, html);
+}
+
 function showILTooltip(event, withFees) {
   const d = g.ilTooltipData;
   if (!d) return;
@@ -1648,7 +1673,7 @@ function hideCustomTooltip() {
 }
 
 function initInfoTooltips() {
-  const icons = document.querySelectorAll('.infoIcon[title]');
+  const icons = document.querySelectorAll('.infoIcon[title], .legend-item[title], .tab-btn[title]');
   icons.forEach(icon => {
     const title = icon.getAttribute('title');
     if (!title) { return; }
