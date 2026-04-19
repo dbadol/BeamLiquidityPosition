@@ -1,4 +1,13 @@
-# BeamLiquidityPosition
-A small tool to compute and display some information about a given liquidity position in Beam DEX (share of the pool, Profit and Loss, Impermanent loss, etc.). It's a simple frontend that queries the block explorer to get the needed information.
- 
-![Screenshot](/src/assets/screenshots/Screenshot_BeamLiquidityPosition_2.png)
+# Beam Liquidity Position
+A small tool to compute and display information about any given liquidity position in the Beam DEX (share of the pool, Profit and Loss, Impermanent Loss, ROI, APR, etc.).
+
+It's a simple frontend that queries an explorer node to get the needed information and then computes several indicators from it.
+
+Written in vanilla HTML/SVG/CSS/Javascript, it runs locally in any browser or as a dApp in the Beam Wallet.
+
+## In a browser:
+![Screenshot](/src/BeamLiquidityPosition_Web_01.png)
+## As a dApp in the Desktop wallet:
+![Screenshot](/src/BeamLiquidityPosition_Desktop_02.png)
+## As a dApp in a Mobile wallet:
+![Screenshot](/src/BeamLiquidityPosition_Mobile_02.png)
