@@ -926,6 +926,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (activeTabId) { switchTab(activeTabId); }
     }, 200);
   });
+  // Initialize tooltips on info icons
+  initInfoTooltips();
   // Update bookmarks
   updateBookmarksDisplay();
   // Clean URL parameters
@@ -1209,11 +1211,11 @@ function drawILChart() {
     <line x1="${dotX}" y1="${dotY}" x2="${dotX}" y2="${netDotY}" class="chart-connector" />
     <!-- Total Position Dot (with fees): Larger, and drawn first to be behind -->
     <circle cx="${dotX}" cy="${netDotY}" r="6" class="chart-dot-total" 
-      onmousemove="showILTooltip(event, true)" onmouseleave="hideCustomTooltip()">
+      onmousemove="showILTooltip(event, true)" onmouseleave="hideCustomTooltip()" onclick="event.stopPropagation()">
     </circle>
     <!-- Principal Position Dot (without fees): Smaller, and drawn last to be on top -->
     <circle cx="${dotX}" cy="${dotY}" r="4" class="chart-dot"
-      onmousemove="showILTooltip(event, false)" onmouseleave="hideCustomTooltip()">
+      onmousemove="showILTooltip(event, false)" onmouseleave="hideCustomTooltip()" onclick="event.stopPropagation()">
     </circle>
   `;
 
@@ -1222,11 +1224,13 @@ function drawILChart() {
   if (legendWithoutFees) {
     legendWithoutFees.onmousemove = (e) => showILTooltip(e, false);
     legendWithoutFees.onmouseleave = hideCustomTooltip;
+    legendWithoutFees.onclick = (e) => e.stopPropagation();
   }
   const legendWithFees = document.getElementById('legend-with-fees');
   if (legendWithFees) {
     legendWithFees.onmousemove = (e) => showILTooltip(e, true);
     legendWithFees.onmouseleave = hideCustomTooltip;
+    legendWithFees.onclick = (e) => e.stopPropagation();
   }
 }
 
@@ -1497,7 +1501,7 @@ function drawSimulatorChart() {
   content += drawLine(pointsFuture, 'chart-line-future');
 
   // Interactive Overlay (for the floating tooltip)
-  content += `<rect x="${paddingL}" y="${paddingT}" width="${chartWidth}" height="${chartHeight}" fill="transparent" onmousemove="showSimulatorTooltip(event)" onmouseleave="hideSimulatorTooltip()" />`;
+  content += `<rect x="${paddingL}" y="${paddingT}" width="${chartWidth}" height="${chartHeight}" fill="transparent" onmousemove="showSimulatorTooltip(event)" onmouseleave="hideSimulatorTooltip()" onclick="event.stopPropagation()" />`;
   content += `<circle id="simulator-dot" r="5" class="chart-dot-total" style="display:none" />`;
 
   // Display the SVG
@@ -1610,19 +1614,29 @@ function showILTooltip(event, withFees) {
 
 function showCustomTooltip(event, htmlContent) {
   const tooltip = document.getElementById('tooltip');
-  if (!tooltip) return;
+  if (!tooltip) { return; }
+  // Display tooltip
   tooltip.innerHTML = htmlContent;
   tooltip.style.display = 'block';
-
   // Position tooltip near mouse but not under it (to avoid flicker)
-  const x = event.clientX + 15;
-  const y = event.clientY + 15;
-  // Keep within window bounds
-  const rectTT = tooltip.getBoundingClientRect();
+  const margin = 15;
+  const edgePadding = 10;
+  const x = event.clientX + margin;
+  const y = event.clientY + margin;
   let posX = x;
   let posY = y;
-  if (x + rectTT.width > window.innerWidth) { posX = event.clientX - rectTT.width - 15; }
-  if (y + rectTT.height > window.innerHeight) { posY = event.clientY - rectTT.height - 15; }
+  // Keep within window bounds
+  const rectTT = tooltip.getBoundingClientRect();
+  const screenW = window.innerWidth;
+  const screenH = window.innerHeight;
+  // Horizontal overflow handling (try showing to the left of the click)
+  if (x + rectTT.width > screenW - edgePadding) { posX = event.clientX - rectTT.width - margin; }
+  // Final clamp to ensure it's always inside the horizontal bounds
+  posX = Math.max(edgePadding, Math.min(posX, screenW - rectTT.width - edgePadding));
+  // Vertical overflow handling (try showing above the click)
+  if (y + rectTT.height > screenH - edgePadding) { posY = event.clientY - rectTT.height - margin; }
+  // Final clamp to ensure it's always inside the vertical bounds
+  posY = Math.max(edgePadding, Math.min(posY, screenH - rectTT.height - edgePadding));
   // Adjust tooltip position
   tooltip.style.left = posX + 'px';
   tooltip.style.top = posY + 'px';
@@ -1631,6 +1645,29 @@ function showCustomTooltip(event, htmlContent) {
 function hideCustomTooltip() {
   const tooltip = document.getElementById('tooltip');
   if (tooltip) { tooltip.style.display = 'none'; }
+}
+
+function initInfoTooltips() {
+  const icons = document.querySelectorAll('.infoIcon[title]');
+  icons.forEach(icon => {
+    const title = icon.getAttribute('title');
+    if (!title) { return; }
+    // Store title in data attribute to prevent native browser tooltip
+    icon.setAttribute('data-tooltip', title);
+    icon.removeAttribute('title');
+    // Desktop: Show on hover
+    icon.addEventListener('mouseenter', (e) => {
+      showCustomTooltip(e, icon.getAttribute('data-tooltip'));
+    });
+    icon.addEventListener('mouseleave', hideCustomTooltip);
+    // Mobile: Show on tap
+    icon.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent immediate hide from global listener
+      showCustomTooltip(e, icon.getAttribute('data-tooltip'));
+    });
+  });
+  // Global listener to hide tooltips on click/touch elsewhere (essential for mobile)
+  document.addEventListener('click', () => { hideCustomTooltip(); });
 }
 
 function hideSimulatorTooltip() {
